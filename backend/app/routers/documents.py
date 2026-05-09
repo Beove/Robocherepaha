@@ -5,11 +5,12 @@ from typing import List, Optional
 from app.database import get_db
 from app.models.document import Document
 from app.models.audit_log import AuditLog
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.auth.dependencies import get_current_user
 from app.config import settings
 from minio import Minio
-from minio.error import S3Error
+from io import BytesIO
+from datetime import timedelta
 import hashlib
 import uuid
 import json
@@ -50,7 +51,7 @@ async def upload_document(
     if file.content_type not in ALLOWED_MIME_TYPES:
         raise HTTPException(
             status_code=400,
-            detail=f"File type not allowed. Allowed: PDF, JPEG, PNG"
+            detail="File type not allowed. Allowed: PDF, JPEG, PNG"
         )
 
     # Чтение файла
@@ -77,7 +78,6 @@ async def upload_document(
     if not minio_client.bucket_exists(settings.minio_bucket):
         minio_client.make_bucket(settings.minio_bucket)
 
-    from io import BytesIO
     minio_client.put_object(
         settings.minio_bucket,
         stored_filename,
@@ -131,6 +131,7 @@ def get_my_documents(
 @router.get("/{document_id}/download")
 def download_document(
     document_id: int,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -142,13 +143,24 @@ def download_document(
         raise HTTPException(status_code=404, detail="Document not found")
 
     # IDOR защита
-    from app.models.user import UserRole
     if current_user.role == UserRole.applicant and document.user_id != current_user.id:
+        log = AuditLog(
+            user_id=current_user.id,
+            event_type="IDOR_ATTEMPT",
+            object_type="document",
+            object_id=document_id,
+            ip_address=request.client.host,
+            details=json.dumps({
+                "attempted_document_id": document_id,
+                "owner_id": document.user_id
+            })
+        )
+        db.add(log)
+        db.commit()
         raise HTTPException(status_code=403, detail="Access denied")
 
     # Генерация временной ссылки на файл (действует 1 час)
     minio_client = get_minio_client()
-    from datetime import timedelta
     url = minio_client.presigned_get_object(
         settings.minio_bucket,
         document.stored_filename,

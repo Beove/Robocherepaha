@@ -11,7 +11,6 @@ import json
 
 router = APIRouter(prefix="/applications", tags=["applications"])
 
-
 class ApplicationCreate(BaseModel):
     direction: str
     education_level: str
@@ -76,6 +75,7 @@ def get_my_applications(
 @router.get("/{application_id}", response_model=ApplicationResponse)
 def get_application(
     application_id: int,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -86,8 +86,20 @@ def get_application(
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
 
-    # IDOR защита
     if current_user.role == UserRole.applicant and application.user_id != current_user.id:
+        log = AuditLog(
+            user_id=current_user.id,
+            event_type="IDOR_ATTEMPT",
+            object_type="application",
+            object_id=application_id,
+            ip_address=request.client.host,
+            details=json.dumps({
+                "attempted_application_id": application_id,
+                "owner_id": application.user_id
+            })
+        )
+        db.add(log)
+        db.commit()
         raise HTTPException(status_code=403, detail="Access denied")
 
     return application
