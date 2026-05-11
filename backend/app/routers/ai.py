@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from app.auth.dependencies import get_current_user
 from app.models.user import User
 from app.tasks import process_ai_question
+from app.middleware import limiter
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
@@ -13,12 +14,10 @@ class AskResponse(BaseModel):
     task_id: str
     message: str
 
-class AskResponseDirect(BaseModel):
-    answer: str
-    found_context: bool
-
 @router.post("/ask", response_model=AskResponse)
+@limiter.limit("5/minute")
 def ask_consultant(
+    request: Request,
     data: AskRequest,
     current_user: User = Depends(get_current_user)
 ):
@@ -36,9 +35,10 @@ def ask_consultant(
         message="Ваш запрос принят. Подключитесь к WebSocket для получения ответа."
     )
 
-
 @router.get("/status/{task_id}", response_model=dict)
+@limiter.limit("30/minute")
 def get_task_status(
+    request: Request,
     task_id: str,
     current_user: User = Depends(get_current_user)
 ):

@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 from app.database import get_db
 from app.models.document import Document
 from app.models.audit_log import AuditLog
 from app.models.user import User, UserRole
 from app.auth.dependencies import get_current_user
 from app.config import settings
+from app.middleware import limiter
 from minio import Minio
 from io import BytesIO
 from datetime import timedelta
@@ -41,6 +42,7 @@ class DocumentResponse(BaseModel):
         from_attributes = True
 
 @router.post("/upload", response_model=DocumentResponse, status_code=201)
+@limiter.limit("5/minute")
 async def upload_document(
     request: Request,
     file: UploadFile = File(...),
@@ -114,12 +116,12 @@ async def upload_document(
     )
     db.add(log)
     db.commit()
-
     return document
 
-
 @router.get("/me", response_model=List[DocumentResponse])
+@limiter.limit("30/minute")
 def get_my_documents(
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -127,11 +129,11 @@ def get_my_documents(
         Document.user_id == current_user.id
     ).all()
 
-
 @router.get("/{document_id}/download")
+@limiter.limit("30/minute")
 def download_document(
-    document_id: int,
     request: Request,
+    document_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -166,5 +168,4 @@ def download_document(
         document.stored_filename,
         expires=timedelta(hours=1)
     )
-
     return {"download_url": url}

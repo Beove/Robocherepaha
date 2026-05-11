@@ -7,6 +7,7 @@ from app.models.application import Application, ApplicationStatus
 from app.models.audit_log import AuditLog
 from app.models.user import User, UserRole
 from app.auth.dependencies import get_current_user, get_current_operator
+from app.middleware import limiter
 import json
 
 router = APIRouter(prefix="/applications", tags=["applications"])
@@ -30,11 +31,11 @@ class ApplicationStatusUpdate(BaseModel):
     status: ApplicationStatus
     comment: Optional[str] = None
 
-
 @router.post("", response_model=ApplicationResponse, status_code=201)
+@limiter.limit("10/minute")
 def create_application(
-    data: ApplicationCreate,
     request: Request,
+    data: ApplicationCreate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -58,12 +59,12 @@ def create_application(
     )
     db.add(log)
     db.commit()
-
     return application
 
-
 @router.get("/me", response_model=List[ApplicationResponse])
+@limiter.limit("30/minute")
 def get_my_applications(
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -71,11 +72,11 @@ def get_my_applications(
         Application.user_id == current_user.id
     ).all()
 
-
 @router.get("/{application_id}", response_model=ApplicationResponse)
+@limiter.limit("30/minute")
 def get_application(
-    application_id: int,
     request: Request,
+    application_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -104,12 +105,12 @@ def get_application(
 
     return application
 
-
 @router.put("/{application_id}/status", response_model=ApplicationResponse)
+@limiter.limit("10/minute")
 def update_application_status(
+    request: Request,
     application_id: int,
     data: ApplicationStatusUpdate,
-    request: Request,
     current_user: User = Depends(get_current_operator),
     db: Session = Depends(get_db)
 ):
@@ -140,5 +141,4 @@ def update_application_status(
     )
     db.add(log)
     db.commit()
-
     return application
