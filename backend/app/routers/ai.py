@@ -16,11 +16,20 @@ chroma_client = chromadb.PersistentClient(
     settings=chromadb.Settings(anonymized_telemetry=False)
 )
 
+def get_gigachat():
+    return GigaChat(credentials=settings.gigachat_api_key, verify_ssl_certs=False)
+
+def get_embedding(text: str) -> list:
+    """Получает embedding через GigaChat Embeddings"""
+    with get_gigachat() as giga:
+        response = giga.embeddings(texts=[text])
+        return response.data[0].embedding
+
 def get_collection():
-    return chroma_client.get_or_create_collection(name="knowledge_base")
+    return chroma_client.get_or_create_collection(name="knowledge_base_giga")
 
 def load_knowledge_base():
-    """Загружает базу знаний в ChromaDB если она пустая"""
+    """Загружает базу знаний в ChromaDB с GigaChat embeddings"""
     collection = get_collection()
 
     if collection.count() > 0:
@@ -35,11 +44,18 @@ def load_knowledge_base():
 
     chunks = [chunk.strip() for chunk in text.split("\n\n") if chunk.strip()]
 
+    # Получаем embeddings через GigaChat для каждого чанка
+    embeddings = []
+    for chunk in chunks:
+        embedding = get_embedding(chunk)
+        embeddings.append(embedding)
+
     collection.add(
         documents=chunks,
+        embeddings=embeddings,
         ids=[f"chunk_{i}" for i in range(len(chunks))]
     )
-    print(f"Knowledge base loaded: {len(chunks)} chunks")
+    print(f"Knowledge base loaded with GigaChat embeddings: {len(chunks)} chunks")
 
 try:
     load_knowledge_base()
@@ -79,19 +95,27 @@ def ask_consultant(
         raise HTTPException(status_code=400, detail="Вопрос слишком длинный")
 
     try:
-        # Читаем всю базу знаний напрямую
-        kb_path = "/app/knowledge_base/admissions_faq.txt"
-        if os.path.exists(kb_path):
-            with open(kb_path, "r", encoding="utf-8") as f:
-                knowledge_base = f.read()
-            user_message = f"База знаний приёмной комиссии:\n{knowledge_base}\n\nВопрос пользователя: {data.question}"
-            found_context = True
+        # Получаем embedding вопроса через GigaChat
+        question_embedding = get_embedding(data.question)
+
+        # Ищем релевантные куски в ChromaDB
+        collection = get_collection()
+        results = collection.query(
+            query_embeddings=[question_embedding],
+            n_results=3
+        )
+
+        context_chunks = results["documents"][0] if results["documents"] else []
+        found_context = len(context_chunks) > 0
+
+        if found_context:
+            context = "\n\n".join(context_chunks)
+            user_message = f"Контекст из базы знаний:\n{context}\n\nВопрос пользователя: {data.question}"
         else:
             user_message = f"Вопрос пользователя: {data.question}"
-            found_context = False
 
         # Запрос к GigaChat
-        with GigaChat(credentials=settings.gigachat_api_key, verify_ssl_certs=False) as giga:
+        with get_gigachat() as giga:
             response = giga.chat(Chat(
                 messages=[
                     Messages(role=MessagesRole.SYSTEM, content=SYSTEM_PROMPT),
