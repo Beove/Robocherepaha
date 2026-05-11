@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     #Gigachat
     gigachat_api_key: str = ""
 
+    #Redis
+    redis_url: str = "redis://redis:6379/0"
+
     # Окружение
     env: str = "development"
 

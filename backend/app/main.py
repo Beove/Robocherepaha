@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 from app.config import settings
 from app.middleware import limiter
-from app.routers import auth, applicants, applications, documents, admin, ai
+from app.routers import auth, applicants, applications, documents, admin, ai, ws
 
 app = FastAPI(
     title="Applicant Portal API",
@@ -37,6 +37,7 @@ app.include_router(applications.router)
 app.include_router(documents.router)
 app.include_router(admin.router)
 app.include_router(ai.router)
+app.include_router(ws.router)
 
 @app.get("/health")
 def health_check():
