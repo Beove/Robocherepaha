@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
 from app.config import settings
+from app.middleware import limiter
 from app.routers import auth, applicants, applications, documents, admin, ai
-
 
 app = FastAPI(
     title="Applicant Portal API",
@@ -10,6 +12,16 @@ app = FastAPI(
     docs_url="/docs" if settings.env == "development" else None,
     redoc_url=None,
 )
+
+# Rate limiting
+app.state.limiter = limiter
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Слишком много запросов. Попробуйте позже."}
+    )
 
 app.add_middleware(
     CORSMiddleware,

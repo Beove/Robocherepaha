@@ -5,6 +5,9 @@ from app.database import get_db
 from app.models.user import User, UserRole
 from app.models.audit_log import AuditLog
 from app.auth.security import hash_password, verify_password, create_access_token
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from app.middleware import limiter
 import json
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -28,6 +31,7 @@ class TokenResponse(BaseModel):
 # Эндпоинты
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
+@limiter.limit("5/minute")
 def register(data: RegisterRequest, request: Request, db: Session = Depends(get_db)):
     # Проверяем что email не занят
     existing = db.query(User).filter(User.email == data.email).first()
@@ -63,6 +67,7 @@ def register(data: RegisterRequest, request: Request, db: Session = Depends(get_
 
 
 @router.post("/login", response_model=TokenResponse)
+@limiter.limit("10/minute")
 def login(data: LoginRequest, request: Request, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
 
