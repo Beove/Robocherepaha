@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic import validator
 
 class Settings(BaseSettings):
     # БД
@@ -14,20 +15,32 @@ class Settings(BaseSettings):
     minio_root_password: str
     minio_bucket: str = "documents"
 
-    #DeepSeek
-    deepseek_api_key: str = ""
-
-    #Groq
-    groq_api_key: str = ""
-
-    #Gigachat
+    # GigaChat
     gigachat_api_key: str = ""
 
-    #Redis
+    # DeepSeek (резервный)
+    deepseek_api_key: str = ""
+
+    # Groq (резервный)
+    groq_api_key: str = ""
+
+    # Redis
     redis_url: str = "redis://redis:6379/0"
 
     # Окружение
     env: str = "development"
+
+    @validator("secret_key")
+    def secret_key_must_be_strong(cls, v):
+        if len(v) < 32:
+            raise ValueError("SECRET_KEY должен быть минимум 32 символа")
+        return v
+
+    @validator("gigachat_api_key")
+    def gigachat_key_required(cls, v):
+        if not v or v.strip() == "":
+            raise ValueError("GIGACHAT_API_KEY не задан — AI консультант не будет работать")
+        return v
 
     class Config:
         env_file = ".env"
