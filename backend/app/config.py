@@ -14,6 +14,15 @@ class Settings(BaseSettings):
     minio_root_password: str
     minio_bucket: str = "documents"
 
+    #DeepSeek
+    deepseek_api_key: str = ""
+
+    #Groq
+    groq_api_key: str = ""
+
+    #Gigachat
+    gigachat_api_key: str = ""
+
     # Окружение
     env: str = "development"
 

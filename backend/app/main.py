@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.routers import auth, applicants, applications, documents
+from app.routers import auth, applicants, applications, documents, admin, ai
+
 
 app = FastAPI(
     title="Applicant Portal API",
@@ -22,6 +23,8 @@ app.include_router(auth.router)
 app.include_router(applicants.router)
 app.include_router(applications.router)
 app.include_router(documents.router)
+app.include_router(admin.router)
+app.include_router(ai.router)
 
 @app.get("/health")
 def health_check():
