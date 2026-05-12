@@ -61,6 +61,62 @@ def create_application(
     db.commit()
     return application
 
+@router.post("/{application_id}/submit", response_model=ApplicationResponse)
+@limiter.limit("10/minute")
+def submit_application(
+    request: Request,
+    application_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Абитуриент подаёт своё черновое заявление (draft → submitted)."""
+    application = db.query(Application).filter(
+        Application.id == application_id
+    ).first()
+
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    # IDOR-защита: только владелец может подать заявление
+    if application.user_id != current_user.id:
+        log = AuditLog(
+            user_id=current_user.id,
+            event_type="IDOR_ATTEMPT",
+            object_type="application",
+            object_id=application_id,
+            ip_address=request.client.host,
+            details=json.dumps({
+                "action": "submit",
+                "attempted_application_id": application_id,
+                "owner_id": application.user_id
+            })
+        )
+        db.add(log)
+        db.commit()
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    if application.status != ApplicationStatus.draft:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot submit application with status '{application.status}'"
+        )
+
+    application.status = ApplicationStatus.submitted
+    db.commit()
+    db.refresh(application)
+
+    log = AuditLog(
+        user_id=current_user.id,
+        event_type="APPLICATION_SUBMITTED",
+        object_type="application",
+        object_id=application.id,
+        ip_address=request.client.host,
+        details=json.dumps({"direction": application.direction})
+    )
+    db.add(log)
+    db.commit()
+    return application
+
 @router.get("/me", response_model=List[ApplicationResponse])
 @limiter.limit("30/minute")
 def get_my_applications(

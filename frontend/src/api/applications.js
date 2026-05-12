@@ -15,6 +15,9 @@ const applicationsAPI = {
   // Получение заявления по ID
   getById: (id) => client.get(`/applications/${id}`),
 
+  // Подача заявления абитуриентом (draft → submitted)
+  submit: (id) => client.post(`/applications/${id}/submit`),
+
   // Обновление статуса заявления (для операторов)
   updateStatus: (id, status, comment) =>
     client.put(`/applications/${id}/status`, { status, comment }),

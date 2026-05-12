@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom'
 import Navbar from '../../components/Navbar'
 import applicationsAPI from '../../api/applications'
 import documentsAPI from '../../api/documents'
-import useAuthStore from '../../store/authStore'
 
-// Цвета статусов заявления
 const statusColors = {
   draft: '#757575',
   submitted: '#1565c0',
@@ -14,7 +12,6 @@ const statusColors = {
   rejected: '#c62828',
 }
 
-// Названия статусов на русском
 const statusLabels = {
   draft: 'Черновик',
   submitted: 'Подано',
@@ -27,24 +24,49 @@ function Dashboard() {
   const [applications, setApplications] = useState([])
   const [documents, setDocuments] = useState([])
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(null) // id заявления в процессе подачи
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [appsRes, docsRes] = await Promise.all([
-          applicationsAPI.getMy(),
-          documentsAPI.getMy(),
-        ])
-        setApplications(appsRes.data)
-        setDocuments(docsRes.data)
-      } catch (err) {
-        console.error('Ошибка загрузки данных:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
     fetchData()
   }, [])
+
+  const fetchData = async () => {
+    try {
+      const [appsRes, docsRes] = await Promise.all([
+        applicationsAPI.getMy(),
+        documentsAPI.getMy(),
+      ])
+      setApplications(appsRes.data)
+      setDocuments(docsRes.data)
+    } catch (err) {
+      console.error('Ошибка загрузки данных:', err)
+      setError('Не удалось загрузить данные. Попробуйте обновить страницу.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSubmit = async (applicationId) => {
+    if (!window.confirm('Подать заявление? После подачи редактирование будет недоступно.')) return
+
+    setSubmitting(applicationId)
+    setError(null)
+    try {
+      await applicationsAPI.submit(applicationId)
+      // Обновляем список заявлений локально без перезагрузки
+      setApplications((prev) =>
+        prev.map((app) =>
+          app.id === applicationId ? { ...app, status: 'submitted' } : app
+        )
+      )
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Ошибка при подаче заявления'
+      setError(msg)
+    } finally {
+      setSubmitting(null)
+    }
+  }
 
   return (
     <div style={styles.page}>
@@ -52,8 +74,10 @@ function Dashboard() {
       <div style={styles.content}>
         <h1 style={styles.title}>Личный кабинет</h1>
 
+        {error && <div style={styles.errorBanner}>{error}</div>}
+
         {loading ? (
-          <p>Загрузка...</p>
+          <p style={{ color: '#757575' }}>Загрузка...</p>
         ) : (
           <>
             {/* Блок заявлений */}
@@ -61,29 +85,43 @@ function Dashboard() {
               <div style={styles.sectionHeader}>
                 <h2 style={styles.sectionTitle}>Мои заявления</h2>
                 <Link to="/application" style={styles.addBtn}>
-                  + Подать заявление
+                  + Новое заявление
                 </Link>
               </div>
 
               {applications.length === 0 ? (
                 <div style={styles.empty}>
-                  <p>У вас нет заявлений. Подайте первое заявление.</p>
+                  <p>У вас нет заявлений. Создайте первое заявление.</p>
                 </div>
               ) : (
                 applications.map((app) => (
                   <div key={app.id} style={styles.card}>
                     <div style={styles.cardRow}>
                       <span style={styles.cardTitle}>{app.direction}</span>
-                      <span style={{
-                        ...styles.badge,
-                        backgroundColor: statusColors[app.status],
-                      }}>
+                      <span
+                        style={{
+                          ...styles.badge,
+                          backgroundColor: statusColors[app.status],
+                        }}
+                      >
                         {statusLabels[app.status]}
                       </span>
                     </div>
                     <p style={styles.cardSub}>{app.education_level}</p>
                     {app.comment && (
                       <p style={styles.comment}>Комментарий: {app.comment}</p>
+                    )}
+                    {app.status === 'draft' && (
+                      <button
+                        style={{
+                          ...styles.submitBtn,
+                          opacity: submitting === app.id ? 0.7 : 1,
+                        }}
+                        onClick={() => handleSubmit(app.id)}
+                        disabled={submitting === app.id}
+                      >
+                        {submitting === app.id ? 'Отправка...' : 'Подать заявление'}
+                      </button>
                     )}
                   </div>
                 ))
@@ -132,10 +170,10 @@ const styles = {
   content: {
     maxWidth: '800px',
     margin: '0 auto',
-    padding: '32px 16px',
+    padding: 'clamp(16px, 4vw, 32px) 16px',
   },
   title: {
-    fontSize: '24px',
+    fontSize: 'clamp(20px, 5vw, 24px)',
     color: '#2d5016',
     marginBottom: '24px',
   },
@@ -146,6 +184,8 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '8px',
     marginBottom: '16px',
   },
   sectionTitle: {
@@ -160,6 +200,7 @@ const styles = {
     borderRadius: '4px',
     textDecoration: 'none',
     fontSize: '14px',
+    whiteSpace: 'nowrap',
   },
   card: {
     backgroundColor: 'white',
@@ -172,6 +213,8 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '8px',
     marginBottom: '4px',
   },
   cardTitle: {
@@ -189,6 +232,7 @@ const styles = {
     padding: '4px 10px',
     borderRadius: '12px',
     fontSize: '12px',
+    flexShrink: 0,
   },
   comment: {
     fontSize: '13px',
@@ -199,6 +243,7 @@ const styles = {
   docSize: {
     fontSize: '13px',
     color: '#757575',
+    flexShrink: 0,
   },
   empty: {
     backgroundColor: 'white',
@@ -207,6 +252,26 @@ const styles = {
     textAlign: 'center',
     color: '#757575',
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+  },
+  submitBtn: {
+    marginTop: '12px',
+    backgroundColor: '#2d5016',
+    color: 'white',
+    border: 'none',
+    padding: '8px 18px',
+    borderRadius: '4px',
+    fontSize: '14px',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s',
+  },
+  errorBanner: {
+    backgroundColor: '#ffebee',
+    border: '1px solid #c62828',
+    color: '#c62828',
+    padding: '12px 16px',
+    borderRadius: '6px',
+    marginBottom: '20px',
+    fontSize: '14px',
   },
 }
 
