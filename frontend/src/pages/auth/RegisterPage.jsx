@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import authAPI from '../../api/auth'
 import useAuthStore from '../../store/authStore'
+import turtleForForm from '../../assets/turtleForForm.png'
 
 function RegisterPage() {
   const navigate = useNavigate()
@@ -32,6 +33,9 @@ function RegisterPage() {
 
   return (
     <div style={styles.container}>
+      <div style={styles.turtleWrapper}>
+        <img src={turtleForForm} alt="Черепаха" style={styles.turtle} />
+      </div>
       <div style={styles.card}>
         <h1 style={styles.title}>Портал абитуриента</h1>
         <h2 style={styles.subtitle}>Регистрация</h2>
@@ -76,7 +80,7 @@ function RegisterPage() {
           </div>
 
           <button
-            style={{...styles.button, opacity: loading ? 0.7 : 1}}
+            style={{ ...styles.button, opacity: loading ? 0.7 : 1 }}
             type="submit"
             disabled={loading}
           >
@@ -96,28 +100,43 @@ const styles = {
   container: {
     minHeight: '100vh',
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#0C131E',
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: '#18212D',
     padding: '40px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+    borderRadius: '35px',
+    boxShadow: '0 2px 10px rgba(94,214,227,0.5)',
     width: '100%',
     maxWidth: '400px',
+    zIndex: 1,
+  },
+  turtleWrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '0',
+    zIndex: 0,
+  },
+  turtle: {
+    width: '100%',
+    maxWidth: '280px',
+    objectFit: 'contain',
+    filter: 'drop-shadow(0 2px 5px rgba(94,214,227,0.5))',
   },
   title: {
     textAlign: 'center',
-    color: '#1a237e',
-    marginBottom: '8px',
-    fontSize: '22px',
+    color: '#5ED6E3',
+    marginBottom: '5px',
+    fontSize: '24px',
+    WebkitTextStroke: '0 2px 10px rgba(255, 255, 255, 0.8)',
   },
   subtitle: {
     textAlign: 'center',
-    color: '#555',
-    marginBottom: '24px',
+    color: '#fff',
+    marginBottom: '20px',
     fontSize: '16px',
     fontWeight: 'normal',
   },
@@ -130,38 +149,38 @@ const styles = {
     fontSize: '14px',
   },
   field: {
-    marginBottom: '16px',
+    marginBottom: '10px',
   },
   label: {
     display: 'block',
-    marginBottom: '6px',
-    color: '#333',
+    marginBottom: '5px',
+    color: '#fff',
     fontSize: '14px',
   },
   input: {
     width: '100%',
     padding: '10px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
+    border: '1px solid #313840',
+    borderRadius: '15px',
     fontSize: '14px',
     boxSizing: 'border-box',
   },
   button: {
     width: '100%',
-    padding: '12px',
-    backgroundColor: '#1a237e',
+    padding: '10px',
+    backgroundColor: 'rgba(94, 214, 227, 0.8)',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '15px',
     fontSize: '16px',
     cursor: 'pointer',
-    marginTop: '8px',
+    marginTop: '18px',
   },
   link: {
     textAlign: 'center',
-    marginTop: '16px',
+    marginTop: '10px',
     fontSize: '14px',
-    color: '#555',
+    color: '#fff',
   },
 }
 

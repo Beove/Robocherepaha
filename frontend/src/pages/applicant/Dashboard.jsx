@@ -165,7 +165,7 @@ function Dashboard() {
 const styles = {
   page: {
     minHeight: '100vh',
-    backgroundColor: '#f4f1eb',
+    backgroundColor: '#18212D',
   },
   content: {
     maxWidth: '800px',

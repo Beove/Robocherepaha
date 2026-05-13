@@ -22,7 +22,6 @@ function Navbar() {
             <Link style={styles.link} to="/dashboard">Главная</Link>
             <Link style={styles.link} to="/application">Заявление</Link>
             <Link style={styles.link} to="/documents">Документы</Link>
-            <Link style={styles.link} to="/ai-consultant">AI Консультант</Link>
           </>
         )}
         {role === 'operator' && (
@@ -41,7 +40,7 @@ function Navbar() {
 
 const styles = {
   nav: {
-    backgroundColor: '#2d5016',
+    backgroundColor: '#0C131E',
     padding: '0 24px',
     display: 'flex',
     alignItems: 'center',

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import authAPI from '../../api/auth'
 import useAuthStore from '../../store/authStore'
+import turtleForForm from '../../assets/turtleForForm.png'
 
 function LoginPage() {
   const navigate = useNavigate()
@@ -35,6 +36,9 @@ function LoginPage() {
 
   return (
     <div style={styles.container}>
+      <div style={styles.turtleWrapper}>
+        <img src={turtleForForm} alt="Черепаха" style={styles.turtle} />
+      </div>
       <div style={styles.card}>
         <h1 style={styles.title}>Робочерепаха</h1>
         <h2 style={styles.subtitle}>Вход в систему</h2>
@@ -67,7 +71,7 @@ function LoginPage() {
           </div>
 
           <button
-            style={{...styles.button, opacity: loading ? 0.7 : 1}}
+            style={{ ...styles.button, opacity: loading ? 0.7 : 1 }}
             type="submit"
             disabled={loading}
           >
@@ -87,6 +91,7 @@ const styles = {
   container: {
     minHeight: '100vh',
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#0C131E',
@@ -95,15 +100,29 @@ const styles = {
     backgroundColor: '#18212D',
     padding: '40px',
     borderRadius: '35px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+    boxShadow: '0 2px 10px rgba(94,214,227,0.5)',
     width: '100%',
     maxWidth: '400px',
+    zIndex: 1,
+  },
+  turtleWrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '0',
+    zIndex: 0,
+  },
+  turtle: {
+    width: '100%',
+    maxWidth: '280px',
+    objectFit: 'contain',
+    filter: 'drop-shadow(0 2px 5px rgba(94,214,227,0.5))',
   },
   title: {
     textAlign: 'center',
     color: '#5ED6E3',
-    marginBottom: '8px',
-    fontSize: '10px',
+    marginBottom: '5px',
+    fontSize: '24px',
+    WebkitTextStroke: '0 2px 10px rgba(255, 255, 255, 0.8)',
   },
   subtitle: {
     textAlign: 'center',
@@ -139,18 +158,18 @@ const styles = {
   },
   button: {
     width: '100%',
-    padding: '12px',
-    backgroundColor: '#5ED6E3',
+    padding: '10px',
+    backgroundColor: 'rgba(94, 214, 227, 0.8)',
     color: 'white',
     border: 'none',
     borderRadius: '15px',
     fontSize: '16px',
     cursor: 'pointer',
-    marginTop: '8px',
+    marginTop: '18px',
   },
   link: {
     textAlign: 'center',
-    marginTop: '16px',
+    marginTop: '10px',
     fontSize: '14px',
     color: '#fff',
   },
