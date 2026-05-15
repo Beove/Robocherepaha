@@ -14,7 +14,7 @@ import json
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
-# ─── Схемы ────────────────────────────────────────────────────────────────────
+# Схемы 
 
 class AuditLogResponse(BaseModel):
     id: int
@@ -52,7 +52,7 @@ class UserRoleUpdate(BaseModel):
     role: UserRole
 
 
-# ─── Журнал аудита ────────────────────────────────────────────────────────────
+# Журнал аудита
 
 @router.get("/logs", response_model=List[AuditLogResponse])
 def get_audit_logs(
@@ -81,7 +81,7 @@ def get_idor_attempts(
     ).order_by(AuditLog.created_at.desc()).all()
 
 
-# ─── Управление пользователями ────────────────────────────────────────────────
+# Управление пользователями 
 
 @router.get("/users", response_model=List[UserResponse])
 def get_users(
