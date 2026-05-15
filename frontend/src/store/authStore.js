@@ -19,6 +19,7 @@ const useAuthStore = create((set) => ({
     localStorage.removeItem('token')
     localStorage.removeItem('role')
     localStorage.removeItem('fullName')
+    localStorage.removeItem('chat_messages')
     set({ token: null, role: null, fullName: null })
   },
 }))

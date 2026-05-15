@@ -1,14 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import Navbar from '../../components/Navbar'
 import aiAPI, { connectToAIResult } from '../../api/ai'
+import useChatStore from '../../store/chatStore'
 
 function AIConsultant() {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      text: 'Здравствуйте! Я Робочерепаха - ИИ-консультант приёмной комиссии Московского Политеха. Готова ответить на Ваши вопросы о поступлении.',
-    },
-  ])
+  const { messages, addMessage, updateLastMessage } = useChatStore()
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef(null)
@@ -24,8 +20,8 @@ function AIConsultant() {
     setInput('')
     setLoading(true)
 
-    setMessages((prev) => [...prev, { role: 'user', text: question }])
-    setMessages((prev) => [...prev, { role: 'assistant', text: 'Обрабатываю Ваш запрос...', loading: true }])
+    addMessage({ role: 'user', text: question })
+    addMessage({ role: 'assistant', text: 'Обрабатываю Ваш запрос...', loading: true })
 
     try {
       const res = await aiAPI.ask(question)
@@ -35,54 +31,24 @@ function AIConsultant() {
         taskId,
         (data) => {
           if (data.status === 'completed') {
-            setMessages((prev) =>
-              prev.map((msg, idx) =>
-                idx === prev.length - 1
-                  ? { role: 'assistant', text: data.answer }
-                  : msg
-              )
-            )
+            updateLastMessage(() => ({ role: 'assistant', text: data.answer }))
             setLoading(false)
             ws.close()
           } else if (data.status === 'queued' || data.status === 'processing') {
-            setMessages((prev) =>
-              prev.map((msg, idx) =>
-                idx === prev.length - 1
-                  ? { role: 'assistant', text: data.message, loading: true }
-                  : msg
-              )
-            )
+            updateLastMessage(() => ({ role: 'assistant', text: data.message, loading: true }))
           } else if (data.status === 'error') {
-            setMessages((prev) =>
-              prev.map((msg, idx) =>
-                idx === prev.length - 1
-                  ? { role: 'assistant', text: 'Произошла ошибка. Пожалуйста, попробуйте ещё раз.' }
-                  : msg
-              )
-            )
+            updateLastMessage(() => ({ role: 'assistant', text: 'Произошла ошибка. Пожалуйста, попробуйте ещё раз.' }))
             setLoading(false)
             ws.close()
           }
         },
         () => {
-          setMessages((prev) =>
-            prev.map((msg, idx) =>
-              idx === prev.length - 1
-                ? { role: 'assistant', text: 'Сервис временно недоступен. Обратитесь в приёмную комиссию.' }
-                : msg
-            )
-          )
+          updateLastMessage(() => ({ role: 'assistant', text: 'Сервис временно недоступен. Обратитесь в приёмную комиссию.' }))
           setLoading(false)
         }
       )
     } catch (err) {
-      setMessages((prev) =>
-        prev.map((msg, idx) =>
-          idx === prev.length - 1
-            ? { role: 'assistant', text: 'Ошибка отправки запроса. Попробуйте позже.' }
-            : msg
-        )
-      )
+      updateLastMessage(() => ({ role: 'assistant', text: 'Ошибка отправки запроса. Попробуйте позже.' }))
       setLoading(false)
     }
   }

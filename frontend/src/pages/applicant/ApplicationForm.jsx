@@ -515,7 +515,7 @@ const styles = {
   detailItem: { display: 'flex', flexDirection: 'column', gap: '2px' },
   detailLabel: { fontSize: '11px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' },
   detailValue: { fontSize: '13px', color: 'rgba(255,255,255,0.85)' },
-  trackWrapper: { display: 'flex', alignItems: 'flex-start', marginBottom: '20px', overflowX: 'auto' },
+  trackWrapper: { display: 'flex', alignItems: 'flex-start', marginBottom: '20px', overflow: 'hidden' },
   trackItem: { display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', flex: 1 },
   trackDot: { width: '12px', height: '12px', borderRadius: '50%', flexShrink: 0, zIndex: 1 },
   trackLine: { position: 'absolute', top: '6px', left: '50%', right: '-50%', height: '2px', zIndex: 0 },

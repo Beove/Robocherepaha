@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, List
@@ -96,61 +96,38 @@ def update_application(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Редактирование черновика абитуриентом."""
-    application = db.query(Application).filter(
-        Application.id == application_id
-    ).first()
-
+    application = db.query(Application).filter(Application.id == application_id).first()
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
 
     if application.user_id != current_user.id:
         log = AuditLog(
-            user_id=current_user.id,
-            event_type="IDOR_ATTEMPT",
-            object_type="application",
-            object_id=application_id,
+            user_id=current_user.id, event_type="IDOR_ATTEMPT",
+            object_type="application", object_id=application_id,
             ip_address=request.client.host,
-            details=json.dumps({
-                "action": "update",
-                "attempted_application_id": application_id,
-                "owner_id": application.user_id
-            })
+            details=json.dumps({"action": "update", "attempted_application_id": application_id, "owner_id": application.user_id})
         )
-        db.add(log)
-        db.commit()
+        db.add(log); db.commit()
         raise HTTPException(status_code=403, detail="Access denied")
 
     if application.status != ApplicationStatus.draft:
-        raise HTTPException(
-            status_code=400,
-            detail="Only draft applications can be edited"
-        )
+        raise HTTPException(status_code=400, detail="Only draft applications can be edited")
 
-    if data.direction is not None:
-        application.direction = data.direction
-    if data.education_level is not None:
-        application.education_level = data.education_level
-    if data.faculty is not None:
-        application.faculty = data.faculty
-    if data.study_form is not None:
-        application.study_form = data.study_form
-    if data.funding is not None:
-        application.funding = data.funding
+    if data.direction is not None: application.direction = data.direction
+    if data.education_level is not None: application.education_level = data.education_level
+    if data.faculty is not None: application.faculty = data.faculty
+    if data.study_form is not None: application.study_form = data.study_form
+    if data.funding is not None: application.funding = data.funding
 
-    db.commit()
-    db.refresh(application)
+    db.commit(); db.refresh(application)
 
     log = AuditLog(
-        user_id=current_user.id,
-        event_type="APPLICATION_UPDATED",
-        object_type="application",
-        object_id=application.id,
+        user_id=current_user.id, event_type="APPLICATION_UPDATED",
+        object_type="application", object_id=application.id,
         ip_address=request.client.host,
         details=json.dumps({"direction": application.direction})
     )
-    db.add(log)
-    db.commit()
+    db.add(log); db.commit()
     return application
 
 
@@ -162,50 +139,31 @@ def delete_application(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Удаление черновика абитуриентом."""
-    application = db.query(Application).filter(
-        Application.id == application_id
-    ).first()
-
+    application = db.query(Application).filter(Application.id == application_id).first()
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
 
     if application.user_id != current_user.id:
         log = AuditLog(
-            user_id=current_user.id,
-            event_type="IDOR_ATTEMPT",
-            object_type="application",
-            object_id=application_id,
+            user_id=current_user.id, event_type="IDOR_ATTEMPT",
+            object_type="application", object_id=application_id,
             ip_address=request.client.host,
-            details=json.dumps({
-                "action": "delete",
-                "attempted_application_id": application_id,
-                "owner_id": application.user_id
-            })
+            details=json.dumps({"action": "delete", "attempted_application_id": application_id, "owner_id": application.user_id})
         )
-        db.add(log)
-        db.commit()
+        db.add(log); db.commit()
         raise HTTPException(status_code=403, detail="Access denied")
 
     if application.status != ApplicationStatus.draft:
-        raise HTTPException(
-            status_code=400,
-            detail="Only draft applications can be deleted"
-        )
+        raise HTTPException(status_code=400, detail="Only draft applications can be deleted")
 
     log = AuditLog(
-        user_id=current_user.id,
-        event_type="APPLICATION_DELETED",
-        object_type="application",
-        object_id=application_id,
+        user_id=current_user.id, event_type="APPLICATION_DELETED",
+        object_type="application", object_id=application_id,
         ip_address=request.client.host,
         details=json.dumps({"direction": application.direction})
     )
-    db.add(log)
-    db.commit()
-
-    db.delete(application)
-    db.commit()
+    db.add(log); db.commit()
+    db.delete(application); db.commit()
 
 
 @router.post("/{application_id}/submit", response_model=ApplicationResponse)
@@ -216,52 +174,52 @@ def submit_application(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Абитуриент подаёт своё черновое заявление (draft → submitted)."""
-    application = db.query(Application).filter(
-        Application.id == application_id
-    ).first()
-
+    application = db.query(Application).filter(Application.id == application_id).first()
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
 
     if application.user_id != current_user.id:
         log = AuditLog(
-            user_id=current_user.id,
-            event_type="IDOR_ATTEMPT",
-            object_type="application",
-            object_id=application_id,
+            user_id=current_user.id, event_type="IDOR_ATTEMPT",
+            object_type="application", object_id=application_id,
             ip_address=request.client.host,
-            details=json.dumps({
-                "action": "submit",
-                "attempted_application_id": application_id,
-                "owner_id": application.user_id
-            })
+            details=json.dumps({"action": "submit", "attempted_application_id": application_id, "owner_id": application.user_id})
         )
-        db.add(log)
-        db.commit()
+        db.add(log); db.commit()
         raise HTTPException(status_code=403, detail="Access denied")
 
     if application.status != ApplicationStatus.draft:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Cannot submit application with status '{application.status}'"
-        )
+        raise HTTPException(status_code=400, detail=f"Cannot submit application with status '{application.status}'")
 
     application.status = ApplicationStatus.submitted
-    db.commit()
-    db.refresh(application)
+    db.commit(); db.refresh(application)
 
     log = AuditLog(
-        user_id=current_user.id,
-        event_type="APPLICATION_SUBMITTED",
-        object_type="application",
-        object_id=application.id,
+        user_id=current_user.id, event_type="APPLICATION_SUBMITTED",
+        object_type="application", object_id=application.id,
         ip_address=request.client.host,
         details=json.dumps({"direction": application.direction})
     )
-    db.add(log)
-    db.commit()
+    db.add(log); db.commit()
     return application
+
+
+@router.get("/all", response_model=List[ApplicationResponse])
+@limiter.limit("30/minute")
+def get_all_applications(
+    request: Request,
+    status: Optional[str] = Query(None),
+    user_id: Optional[int] = Query(None),
+    current_user: User = Depends(get_current_operator),
+    db: Session = Depends(get_db)
+):
+    """Все заявления — для операторов и администраторов."""
+    query = db.query(Application)
+    if status:
+        query = query.filter(Application.status == status)
+    if user_id:
+        query = query.filter(Application.user_id == user_id)
+    return query.order_by(Application.created_at.desc()).all()
 
 
 @router.get("/me", response_model=List[ApplicationResponse])
@@ -284,27 +242,18 @@ def get_application(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    application = db.query(Application).filter(
-        Application.id == application_id
-    ).first()
-
+    application = db.query(Application).filter(Application.id == application_id).first()
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
 
     if current_user.role == UserRole.applicant and application.user_id != current_user.id:
         log = AuditLog(
-            user_id=current_user.id,
-            event_type="IDOR_ATTEMPT",
-            object_type="application",
-            object_id=application_id,
+            user_id=current_user.id, event_type="IDOR_ATTEMPT",
+            object_type="application", object_id=application_id,
             ip_address=request.client.host,
-            details=json.dumps({
-                "attempted_application_id": application_id,
-                "owner_id": application.user_id
-            })
+            details=json.dumps({"attempted_application_id": application_id, "owner_id": application.user_id})
         )
-        db.add(log)
-        db.commit()
+        db.add(log); db.commit()
         raise HTTPException(status_code=403, detail="Access denied")
 
     return application
@@ -319,31 +268,20 @@ def update_application_status(
     current_user: User = Depends(get_current_operator),
     db: Session = Depends(get_db)
 ):
-    application = db.query(Application).filter(
-        Application.id == application_id
-    ).first()
-
+    application = db.query(Application).filter(Application.id == application_id).first()
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
 
     old_status = application.status
     application.status = data.status
     application.comment = data.comment
-    db.commit()
-    db.refresh(application)
+    db.commit(); db.refresh(application)
 
     log = AuditLog(
-        user_id=current_user.id,
-        event_type="APPLICATION_STATUS_CHANGED",
-        object_type="application",
-        object_id=application.id,
+        user_id=current_user.id, event_type="APPLICATION_STATUS_CHANGED",
+        object_type="application", object_id=application.id,
         ip_address=request.client.host,
-        details=json.dumps({
-            "old_status": old_status,
-            "new_status": data.status,
-            "comment": data.comment
-        })
+        details=json.dumps({"old_status": old_status, "new_status": data.status, "comment": data.comment})
     )
-    db.add(log)
-    db.commit()
+    db.add(log); db.commit()
     return application
