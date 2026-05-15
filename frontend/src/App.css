@@ -4,10 +4,20 @@
   box-sizing: border-box;
 }
 
+#root {
+  min-height: 100vh;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background-color: #0C131E;
+}
+
 body {
   margin: 0;
-  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-  background-color: #f4f1eb;
+  font-family: "Science Gothic", sans-serif;
   color: #3d3d3d;
   -webkit-font-smoothing: antialiased;
 }
@@ -18,6 +28,10 @@ a {
 }
 
 a:hover {
+  color: #5ED6E3;
+}
+
+a:visited {
   color: #5ED6E3;
 }
 
@@ -32,7 +46,6 @@ textarea {
   font-family: inherit;
 }
 
-/* Утилиты */
 .text-error   { color: #c62828; }
 .text-success { color: #2e7d32; }
 .text-warning { color: #f57f17; }

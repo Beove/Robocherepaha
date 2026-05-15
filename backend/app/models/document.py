@@ -15,6 +15,8 @@ class Document(Base):
     file_size = Column(BigInteger, nullable=False)
     sha256_hash = Column(String, nullable=False)
     status = Column(String, default="pending")
+    doc_type = Column(String, nullable=True)   # тип документа
+    edu_level = Column(String, nullable=True)  # уровень образования
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", backref="documents")

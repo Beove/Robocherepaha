@@ -1,13 +1,8 @@
 import client from './client'
 
-// API методы для работы с заявлениями
 const applicationsAPI = {
   // Создание нового заявления
-  create: (direction, educationLevel) =>
-    client.post('/applications', {
-      direction,
-      education_level: educationLevel,
-    }),
+  create: (data) => client.post('/applications', data),
 
   // Получение заявлений текущего пользователя
   getMy: () => client.get('/applications/me'),
@@ -17,6 +12,12 @@ const applicationsAPI = {
 
   // Подача заявления абитуриентом (draft → submitted)
   submit: (id) => client.post(`/applications/${id}/submit`),
+
+  // Редактирование черновика
+  update: (id, data) => client.patch(`/applications/${id}`, data),
+
+  // Удаление черновика
+  delete: (id) => client.delete(`/applications/${id}`),
 
   // Обновление статуса заявления (для операторов)
   updateStatus: (id, status, comment) =>

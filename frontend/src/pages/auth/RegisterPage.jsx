@@ -22,7 +22,7 @@ function RegisterPage() {
     try {
       const response = await authAPI.register(email, password, fullName)
       const { access_token, role } = response.data
-      setAuth(access_token, role)
+      setAuth(access_token, role, fullName)
       navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.detail || 'Ошибка регистрации')
@@ -37,7 +37,7 @@ function RegisterPage() {
         <img src={turtleForForm} alt="Черепаха" style={styles.turtle} />
       </div>
       <div style={styles.card}>
-        <h1 style={styles.title}>Портал абитуриента</h1>
+        <h1 style={styles.title}>Робочерепаха</h1>
         <h2 style={styles.subtitle}>Регистрация</h2>
 
         {error && <div style={styles.error}>{error}</div>}

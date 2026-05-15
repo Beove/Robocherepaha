@@ -4,19 +4,22 @@ import { create } from 'zustand'
 const useAuthStore = create((set) => ({
   token: localStorage.getItem('token') || null,
   role: localStorage.getItem('role') || null,
+  fullName: localStorage.getItem('fullName') || null,
 
   // Установка данных после входа
-  setAuth: (token, role) => {
+  setAuth: (token, role, fullName) => {
     localStorage.setItem('token', token)
     localStorage.setItem('role', role)
-    set({ token, role })
+    if (fullName) localStorage.setItem('fullName', fullName)
+    set({ token, role, fullName })
   },
 
   // Очистка данных при выходе
-  logout: () => {
+ logout: () => {
     localStorage.removeItem('token')
     localStorage.removeItem('role')
-    set({ token: null, role: null })
+    localStorage.removeItem('fullName')
+    set({ token: null, role: null, fullName: null })
   },
 }))
 

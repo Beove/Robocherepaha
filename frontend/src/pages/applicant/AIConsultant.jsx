@@ -6,14 +6,13 @@ function AIConsultant() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      text: 'Здравствуйте! Я ИИ-консультант приёмной комиссии Московского Политеха. Готов ответить на Ваши вопросы о поступлении1',
+      text: 'Здравствуйте! Я Робочерепаха - ИИ-консультант приёмной комиссии Московского Политеха. Готова ответить на Ваши вопросы о поступлении.',
     },
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef(null)
 
-  // Прокрутка вниз при новом сообщении
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
@@ -25,18 +24,13 @@ function AIConsultant() {
     setInput('')
     setLoading(true)
 
-    // Добавляем сообщение пользователя
     setMessages((prev) => [...prev, { role: 'user', text: question }])
-
-    // Добавляем placeholder пока ждём ответ
     setMessages((prev) => [...prev, { role: 'assistant', text: 'Обрабатываю Ваш запрос...', loading: true }])
 
     try {
-      // Отправляем вопрос в очередь
       const res = await aiAPI.ask(question)
       const taskId = res.data.task_id
 
-      // Подключаемся к WebSocket для получения ответа
       const ws = connectToAIResult(
         taskId,
         (data) => {
@@ -70,7 +64,7 @@ function AIConsultant() {
             ws.close()
           }
         },
-        (error) => {
+        () => {
           setMessages((prev) =>
             prev.map((msg, idx) =>
               idx === prev.length - 1
@@ -104,10 +98,13 @@ function AIConsultant() {
     <div style={styles.page}>
       <Navbar />
       <div style={styles.content}>
-        <h1 style={styles.title}>ИИ-консультант</h1>
-        <p style={styles.subtitle}>
-          Задайте вопрос о поступлении — я отвечу на основе официальной информации приёмной комиссии.
-        </p>
+
+        <div style={styles.header}>
+          <h1 style={styles.title}>Чат с Робочерепахой</h1>
+          <p style={styles.subtitle}>
+            Консультация на основе информации с официального сайта Московского политехнического университета.
+          </p>
+        </div>
 
         {/* Область сообщений */}
         <div style={styles.chatBox}>
@@ -120,12 +117,12 @@ function AIConsultant() {
               }}
             >
               <div style={styles.messageRole}>
-                {msg.role === 'user' ? 'Вы' : 'AI Консультант'}
+                {msg.role === 'user' ? 'Вы' : 'Робочерепаха'}
               </div>
               <div style={{
                 ...styles.messageText,
                 fontStyle: msg.loading ? 'italic' : 'normal',
-                color: msg.loading ? '#757575' : 'inherit',
+                color: msg.loading ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.85)',
               }}>
                 {msg.text}
               </div>
@@ -146,13 +143,14 @@ function AIConsultant() {
             disabled={loading}
           />
           <button
-            style={{...styles.sendBtn, opacity: loading || !input.trim() ? 0.6 : 1}}
+            style={{ ...styles.sendBtn, opacity: loading || !input.trim() ? 0.5 : 1 }}
             onClick={handleSend}
             disabled={loading || !input.trim()}
           >
             Отправить
           </button>
         </div>
+
       </div>
     </div>
   )
@@ -161,81 +159,88 @@ function AIConsultant() {
 const styles = {
   page: {
     minHeight: '100vh',
-    backgroundColor: '#f4f1eb',
   },
   content: {
-    maxWidth: '800px',
-    margin: '0 auto',
-    padding: '32px 16px',
+    maxWidth: '1240px',
+    margin: '40px auto',
+    padding: '0 16px',
+  },
+  header: {
+    marginBottom: '20px',
   },
   title: {
-    fontSize: '24px',
-    color: '#2d5016',
-    marginBottom: '8px',
+    fontSize: '28px',
+    color: '#5ED6E3',
+    margin: '0',
   },
   subtitle: {
-    fontSize: '14px',
-    color: '#757575',
-    marginBottom: '24px',
+    fontSize: '16px',
+    color: 'rgba(255,255,255,0.85)',
+    margin: 0,
   },
   chatBox: {
-    backgroundColor: 'white',
-    borderRadius: '8px',
-    padding: '16px',
-    minHeight: '400px',
-    maxHeight: '500px',
+    backgroundColor: '#18212D',
+    borderRadius: '15px',
+    padding: '20px',
+    height: '500px',
     overflowY: 'auto',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    marginBottom: '16px',
+    border: '1px solid rgba(94,214,227,0.3)',
+    marginBottom: '20px',
   },
   message: {
-    marginBottom: '16px',
-    padding: '12px',
-    borderRadius: '8px',
+    marginBottom: '20px',
+    padding: '10px 15px',
+    borderRadius: '10px',
   },
   userMessage: {
-    backgroundColor: '#f4f1eb',
-    marginLeft: '40px',
+    backgroundColor: 'rgba(94,214,227,0.08)',
+    border: '1px solid rgba(94,214,227,0.2)',
+    marginLeft: '80px',
   },
   assistantMessage: {
-    backgroundColor: '#e8f0e8',
-    marginRight: '40px',
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    marginRight: '80px',
   },
   messageRole: {
-    fontSize: '12px',
-    color: '#757575',
-    marginBottom: '4px',
+    fontSize: '14px',
+    color: '#5ED6E3',
+    marginBottom: '5px',
     fontWeight: '500',
   },
   messageText: {
     fontSize: '14px',
-    color: '#3d3d3d',
     lineHeight: '1.6',
     whiteSpace: 'pre-wrap',
   },
   inputRow: {
     display: 'flex',
-    gap: '12px',
-    alignItems: 'flex-end',
+    gap: '20px',
+    alignItems: 'center',
   },
   textarea: {
     flex: 1,
-    padding: '10px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '14px',
+    padding: '20px',
+    border: '1px solid rgba(94,214,227,0.3)',
+    borderRadius: '15px',
+    fontSize: '16px',
     resize: 'none',
     fontFamily: 'inherit',
+    backgroundColor: '#18212D',
+    color: 'rgba(255,255,255,0.85)',
+    outline: 'none',
+    height: '100px',
   },
   sendBtn: {
-    backgroundColor: '#2d5016',
-    color: 'white',
+    backgroundColor: 'rgba(94, 214, 227, 0.8)',
+    color: '#fff',
     border: 'none',
-    padding: '10px 20px',
-    borderRadius: '4px',
+    padding: '0 15px',
+    borderRadius: '15px',
     cursor: 'pointer',
-    fontSize: '14px',
-    height: '80px',
+    fontSize: '16px',
+    whiteSpace: 'nowrap',
+    height: '100px',
   },
 }
 

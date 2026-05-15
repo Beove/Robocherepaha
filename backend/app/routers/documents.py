@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Request
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Request, Form
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from app.database import get_db
 from app.models.document import Document
 from app.models.audit_log import AuditLog
@@ -18,7 +18,6 @@ import json
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
-# Клиент MinIO
 def get_minio_client():
     return Minio(
         "minio:9000",
@@ -27,7 +26,14 @@ def get_minio_client():
         secure=False
     )
 
-# Разрешённые типы файлов
+def get_minio_public_client():
+    return Minio(
+        "localhost:9000",
+        access_key=settings.minio_root_user,
+        secret_key=settings.minio_root_password,
+        secure=False
+    )
+
 ALLOWED_MIME_TYPES = ["application/pdf", "image/jpeg", "image/png"]
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 МБ
 
@@ -37,46 +43,42 @@ class DocumentResponse(BaseModel):
     mime_type: str
     file_size: int
     status: str
+    doc_type: Optional[str] = None
+    edu_level: Optional[str] = None
 
     class Config:
         from_attributes = True
+
 
 @router.post("/upload", response_model=DocumentResponse, status_code=201)
 @limiter.limit("5/minute")
 async def upload_document(
     request: Request,
     file: UploadFile = File(...),
+    doc_type: Optional[str] = Form(None),
+    edu_level: Optional[str] = Form(None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Проверка типа файла
     if file.content_type not in ALLOWED_MIME_TYPES:
         raise HTTPException(
             status_code=400,
             detail="File type not allowed. Allowed: PDF, JPEG, PNG"
         )
 
-    # Чтение файла
     contents = await file.read()
 
-    # Проверка размера
     if len(contents) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=400,
             detail="File too large. Maximum size is 10MB"
         )
 
-    # SHA-256 хэш для контроля целостности
     sha256_hash = hashlib.sha256(contents).hexdigest()
-
-    # Генерация уникального имени файла
     extension = file.filename.split(".")[-1]
     stored_filename = f"{uuid.uuid4()}.{extension}"
 
-    # Загрузка в MinIO
     minio_client = get_minio_client()
-
-    # Создание bucket если не существует
     if not minio_client.bucket_exists(settings.minio_bucket):
         minio_client.make_bucket(settings.minio_bucket)
 
@@ -88,20 +90,20 @@ async def upload_document(
         content_type=file.content_type
     )
 
-    # Сохранение метаданных в БД
     document = Document(
         user_id=current_user.id,
         original_filename=file.filename,
         stored_filename=stored_filename,
         mime_type=file.content_type,
         file_size=len(contents),
-        sha256_hash=sha256_hash
+        sha256_hash=sha256_hash,
+        doc_type=doc_type,
+        edu_level=edu_level,
     )
     db.add(document)
     db.commit()
     db.refresh(document)
 
-    # Логирование
     log = AuditLog(
         user_id=current_user.id,
         event_type="DOCUMENT_UPLOADED",
@@ -111,12 +113,67 @@ async def upload_document(
         details=json.dumps({
             "filename": file.filename,
             "size": len(contents),
-            "hash": sha256_hash
+            "hash": sha256_hash,
+            "doc_type": doc_type,
+            "edu_level": edu_level,
         })
     )
     db.add(log)
     db.commit()
     return document
+
+
+@router.delete("/{document_id}", status_code=204)
+@limiter.limit("10/minute")
+def delete_document(
+    request: Request,
+    document_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    document = db.query(Document).filter(Document.id == document_id).first()
+
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    if document.user_id != current_user.id:
+        log = AuditLog(
+            user_id=current_user.id,
+            event_type="IDOR_ATTEMPT",
+            object_type="document",
+            object_id=document_id,
+            ip_address=request.client.host,
+            details=json.dumps({
+                "action": "delete",
+                "attempted_document_id": document_id,
+                "owner_id": document.user_id
+            })
+        )
+        db.add(log)
+        db.commit()
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    # Удаляем файл из MinIO
+    try:
+        minio_client = get_minio_client()
+        minio_client.remove_object(settings.minio_bucket, document.stored_filename)
+    except Exception:
+        pass  # если файла нет в MinIO — всё равно удаляем запись из БД
+
+    log = AuditLog(
+        user_id=current_user.id,
+        event_type="DOCUMENT_DELETED",
+        object_type="document",
+        object_id=document_id,
+        ip_address=request.client.host,
+        details=json.dumps({"filename": document.original_filename})
+    )
+    db.add(log)
+    db.commit()
+
+    db.delete(document)
+    db.commit()
+
 
 @router.get("/me", response_model=List[DocumentResponse])
 @limiter.limit("30/minute")
@@ -127,7 +184,8 @@ def get_my_documents(
 ):
     return db.query(Document).filter(
         Document.user_id == current_user.id
-    ).all()
+    ).order_by(Document.created_at.desc()).all()
+
 
 @router.get("/{document_id}/download")
 @limiter.limit("30/minute")
@@ -137,14 +195,11 @@ def download_document(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    document = db.query(Document).filter(
-        Document.id == document_id
-    ).first()
+    document = db.query(Document).filter(Document.id == document_id).first()
 
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    # IDOR защита
     if current_user.role == UserRole.applicant and document.user_id != current_user.id:
         log = AuditLog(
             user_id=current_user.id,
@@ -161,11 +216,12 @@ def download_document(
         db.commit()
         raise HTTPException(status_code=403, detail="Access denied")
 
-    # Генерация временной ссылки на файл (действует 1 час)
     minio_client = get_minio_client()
     url = minio_client.presigned_get_object(
         settings.minio_bucket,
         document.stored_filename,
         expires=timedelta(hours=1)
     )
+
+    url = url.replace("http://minio:9000", "http://localhost/minio")
     return {"download_url": url}

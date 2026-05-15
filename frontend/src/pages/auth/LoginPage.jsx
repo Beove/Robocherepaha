@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import authAPI from '../../api/auth'
 import useAuthStore from '../../store/authStore'
 import turtleForForm from '../../assets/turtleForForm.png'
+import applicantsAPI from '../../api/applicants'
 
 function LoginPage() {
   const navigate = useNavigate()
@@ -24,8 +25,13 @@ function LoginPage() {
       setAuth(access_token, role)
 
       // Редирект в зависимости от роли
-      if (role === 'applicant') navigate('/dashboard')
-      else if (role === 'operator') navigate('/operator')
+      if (role === 'applicant') {
+        try {
+          const me = await applicantsAPI.getMe()
+          useAuthStore.getState().setAuth(access_token, role, me.data.full_name)
+        } catch { }
+        navigate('/dashboard')
+      } else if (role === 'operator') navigate('/operator')
       else if (role === 'admin') navigate('/admin/logs')
     } catch (err) {
       setError(err.response?.data?.detail || 'Ошибка входа')
