@@ -85,13 +85,13 @@ def login(data: LoginRequest, request: Request, db: Session = Depends(get_db)):
 
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials"
+            detail="Неверный email или пароль"
         )
 
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Account is disabled"
+            detail="Аккаунт заблокирован"
         )
 
     # Логируем успешный вход
