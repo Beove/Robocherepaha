@@ -130,8 +130,8 @@ function AdminLogs() {
           {[['logs', 'Журнал аудита'], ['users', 'Пользователи']].map(([key, label]) => (
             <button key={key} style={{
               ...styles.tab,
-              borderBottom: tab === key ? '2px solid #5ED6E3' : '2px solid transparent',
-              color: tab === key ? '#5ED6E3' : 'rgba(255,255,255,0.4)',
+              borderBottom: tab === key ? '2px solid var(--accent)' : '2px solid transparent',
+              color: tab === key ? 'var(--accent)' : 'var(--text-muted)',
             }} onClick={() => setTab(key)}>
               {label}
             </button>
@@ -146,7 +146,7 @@ function AdminLogs() {
                 ...styles.idorBtn,
                 backgroundColor: idorOnly ? 'rgba(183,28,28,0.3)' : 'transparent',
                 borderColor: '#b71c1c',
-                color: idorOnly ? '#ef5350' : 'rgba(255,255,255,0.6)',
+                color: idorOnly ? '#ef5350' : 'var(--text-secondary)',
               }} onClick={() => { setIdorOnly(!idorOnly); setFilter('all') }}>
                 ⚠ {idorOnly ? 'Показать все' : 'Только IDOR'}
               </button>
@@ -158,9 +158,9 @@ function AdminLogs() {
                 {eventTypes.map(type => (
                   <button key={type} style={{
                     ...styles.filterBtn,
-                    backgroundColor: filter === type ? 'rgba(94,214,227,0.15)' : 'transparent',
-                    borderColor: filter === type ? 'rgba(94,214,227,0.6)' : 'rgba(255,255,255,0.1)',
-                    color: filter === type ? '#5ED6E3' : 'rgba(255,255,255,0.5)',
+                    backgroundColor: filter === type ? 'var(--accent-btn-back)' : 'transparent',
+                    borderColor: filter === type ? 'var(--accent)' : 'var(--text-muted)',
+                    color: filter === type ? 'var(--accent)' : 'var(--text-secondary)',
                   }} onClick={() => setFilter(type)}>
                     {type === 'all' ? 'Все' : type}
                   </button>
@@ -169,7 +169,7 @@ function AdminLogs() {
             )}
 
             {logsLoading ? (
-              <p style={{ color: '#5ED6E3' }}>Загрузка...</p>
+              <p style={{ color: 'var(--accent)' }}>Загрузка...</p>
             ) : filtered.length === 0 ? (
               <div style={styles.empty}>Записей не найдено</div>
             ) : (
@@ -185,7 +185,7 @@ function AdminLogs() {
                   <tbody>
                     {filtered.map(log => (
                       <tr key={log.id} style={styles.tr}>
-                        <td style={{ ...styles.td, color: 'rgba(255,255,255,0.4)', whiteSpace: 'nowrap' }}>
+                        <td style={{ ...styles.td, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                           {formatDate(log.created_at)}
                         </td>
                         <td style={styles.td}>
@@ -196,14 +196,14 @@ function AdminLogs() {
                             border: `1px solid ${eventColors[log.event_type] || '#757575'}66`,
                           }}>{log.event_type}</span>
                         </td>
-                        <td style={{ ...styles.td, color: 'rgba(255,255,255,0.7)' }}>{log.user_id || '—'}</td>
-                        <td style={{ ...styles.td, color: 'rgba(255,255,255,0.7)' }}>
+                        <td style={{ ...styles.td, color: 'var(--text-secondary)' }}>{log.user_id || '—'}</td>
+                        <td style={{ ...styles.td, color: 'var(--text-secondary)' }}>
                           {log.object_type ? `${log.object_type} #${log.object_id}` : '—'}
                         </td>
-                        <td style={{ ...styles.td, color: 'rgba(255,255,255,0.4)', whiteSpace: 'nowrap' }}>
+                        <td style={{ ...styles.td, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                           {log.ip_address || '—'}
                         </td>
-                        <td style={{ ...styles.td, color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>
+                        <td style={{ ...styles.td, color: 'var(--text-muted)', fontSize: '12px' }}>
                           {formatDetails(log.details)}
                         </td>
                       </tr>
@@ -223,9 +223,9 @@ function AdminLogs() {
                 {[['', 'Все'], ['applicant', 'Абитуриенты'], ['operator', 'Операторы'], ['admin', 'Администраторы']].map(([val, label]) => (
                   <button key={val} style={{
                     ...styles.filterBtn,
-                    backgroundColor: roleFilter === val ? 'rgba(94,214,227,0.15)' : 'transparent',
-                    borderColor: roleFilter === val ? 'rgba(94,214,227,0.6)' : 'rgba(255,255,255,0.1)',
-                    color: roleFilter === val ? '#5ED6E3' : 'rgba(255,255,255,0.5)',
+                    backgroundColor: roleFilter === val ? 'var(--accent-btn-back)' : 'transparent',
+                    borderColor: roleFilter === val ? 'var(--accent)' : 'var(--text-muted)',
+                    color: roleFilter === val ? 'var(--accent)' : 'var(--text-muted)',
                   }} onClick={() => setRoleFilter(val)}>
                     {label}
                   </button>
@@ -283,7 +283,7 @@ function AdminLogs() {
             )}
 
             {usersLoading ? (
-              <p style={{ color: '#5ED6E3' }}>Загрузка...</p>
+              <p style={{ color: 'var(--accent)' }}>Загрузка...</p>
             ) : (
               <div style={styles.tableWrapper}>
                 <table style={styles.table}>
@@ -297,9 +297,9 @@ function AdminLogs() {
                   <tbody>
                     {users.map(user => (
                       <tr key={user.id} style={styles.tr}>
-                        <td style={{ ...styles.td, color: 'rgba(255,255,255,0.4)' }}>{user.id}</td>
-                        <td style={{ ...styles.td, color: '#fff' }}>{user.email}</td>
-                        <td style={{ ...styles.td, color: 'rgba(255,255,255,0.7)' }}>{user.full_name || '—'}</td>
+                        <td style={{ ...styles.td, color: 'var(--text-muted)' }}>{user.id}</td>
+                        <td style={{ ...styles.td, color: 'var(--text-primary)' }}>{user.email}</td>
+                        <td style={{ ...styles.td, color: 'var(--text-secondary)' }}>{user.full_name || '—'}</td>
                         <td style={styles.td}>
                           <span style={{
                             ...styles.badge,
@@ -308,7 +308,7 @@ function AdminLogs() {
                             border: `1px solid ${roleColors[user.role]}66`,
                           }}>{roleLabels[user.role]}</span>
                         </td>
-                        <td style={{ ...styles.td, color: 'rgba(255,255,255,0.4)', whiteSpace: 'nowrap' }}>
+                        <td style={{ ...styles.td, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                           {user.created_at ? formatDate(user.created_at) : '—'}
                         </td>
                         <td style={styles.td}>
@@ -342,8 +342,8 @@ function AdminLogs() {
 const styles = {
   page: { minHeight: '100vh' },
   content: { maxWidth: '1400px', margin: '40px auto', padding: '0 16px' },
-  pageTitle: { fontSize: '28px', color: '#5ED6E3', margin: '0 0 24px' },
-  tabs: { display: 'flex', gap: '0', marginBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.08)' },
+  pageTitle: { fontSize: '28px', color: 'var(--accent)', margin: '0 0 24px' },
+  tabs: { display: 'flex', gap: '0', marginBottom: '24px', borderBottom: '1px solid var(--row-divider)' },
   tab: {
     padding: '10px 24px', background: 'transparent', border: 'none',
     cursor: 'pointer', fontSize: '15px', fontFamily: 'inherit', transition: 'all 0.2s',
@@ -353,7 +353,7 @@ const styles = {
     padding: '8px 16px', border: '1px solid', borderRadius: '8px',
     cursor: 'pointer', fontSize: '13px', fontWeight: '500',
   },
-  count: { fontSize: '13px', color: 'rgba(255,255,255,0.4)', marginLeft: 'auto' },
+  count: { fontSize: '13px', color: 'var(--text-muted)', marginLeft: 'auto' },
   filters: { display: 'flex', gap: '8px', marginBottom: '0', flexWrap: 'wrap' },
   filterBtn: {
     padding: '5px 12px', border: '1px solid', borderRadius: '6px',
@@ -361,57 +361,57 @@ const styles = {
   },
   createBtn: {
     marginLeft: 'auto', padding: '8px 16px',
-    backgroundColor: 'rgba(94,214,227,0.8)', color: 'white',
+    backgroundColor: 'var(--accent-btn)', color: 'white',
     border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px',
   },
   createForm: {
-    backgroundColor: '#18212D', borderRadius: '15px', padding: '24px',
-    border: '1px solid rgba(94,214,227,0.3)', marginBottom: '20px',
+    backgroundColor: 'var(--bg-card)', borderRadius: '15px', padding: '24px',
+    border: '1px solid var(--border)', marginBottom: '20px',
   },
-  createTitle: { color: '#5ED6E3', fontSize: '16px', margin: '0 0 16px' },
+  createTitle: { color: 'var(--accent)', fontSize: '16px', margin: '0 0 16px' },
   formGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' },
   field: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  label: { fontSize: '13px', color: 'rgba(255,255,255,0.7)' },
+  label: { fontSize: '13px', color: 'var(--text-secondary)' },
   input: {
-    padding: '10px 12px', border: '1px solid rgba(94,214,227,0.3)',
-    borderRadius: '8px', fontSize: '14px', backgroundColor: '#0C131E',
-    color: 'rgba(255,255,255,0.85)', outline: 'none',
+    padding: '10px 12px', border: '1px solid var(--border)',
+    borderRadius: '8px', fontSize: '14px', backgroundColor: 'var(--bg-input)',
+    color: 'var(--text-primary)', outline: 'none',
   },
   select: {
-    padding: '10px 12px', border: '1px solid rgba(94,214,227,0.3)',
-    borderRadius: '8px', fontSize: '14px', backgroundColor: '#0C131E',
-    color: 'rgba(255,255,255,0.85)', outline: 'none', cursor: 'pointer',
+    padding: '10px 12px', border: '1px solid var(--border)',
+    borderRadius: '8px', fontSize: '14px', backgroundColor: 'var(--bg-input)',
+    color: 'var(--text-primary)', outline: 'none', cursor: 'pointer',
   },
   submitBtn: {
-    padding: '10px 24px', backgroundColor: 'rgba(94,214,227,0.8)',
+    padding: '10px 24px', backgroundColor: 'var(--accent-btn)',
     color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px',
   },
   cancelBtn: {
     padding: '10px 24px', backgroundColor: 'transparent',
-    color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.15)',
+    color: 'var(--text-secondary)', border: '1px solid var(--text-muted)',
     borderRadius: '8px', cursor: 'pointer', fontSize: '14px',
   },
   tableWrapper: {
-    backgroundColor: '#18212D', borderRadius: '15px',
-    border: '1px solid rgba(94,214,227,0.3)', overflowX: 'auto',
+    backgroundColor: 'var(--bg-card)', borderRadius: '15px',
+    border: '1px solid var(--border)', overflowX: 'auto',
   },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: {
     padding: '12px 16px', textAlign: 'left', fontSize: '11px',
-    color: 'rgba(255,255,255,0.4)', fontWeight: '500',
-    borderBottom: '1px solid rgba(255,255,255,0.06)',
+    color: 'var(--text-muted)', fontWeight: '500',
+    borderBottom: '1px solid var(--row-divider)',
     whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '0.06em',
   },
-  tr: { borderBottom: '1px solid rgba(255,255,255,0.04)' },
-  td: { padding: '12px 16px', fontSize: '13px', color: 'rgba(255,255,255,0.85)', verticalAlign: 'middle' },
+  tr: { borderBottom: '1px solid var(--row-divider)' },
+  td: { padding: '12px 16px', fontSize: '13px', color: 'var(--text-primary)', verticalAlign: 'middle' },
   badge: {
     display: 'inline-block', padding: '3px 8px', borderRadius: '6px',
     fontSize: '11px', fontWeight: '500', whiteSpace: 'nowrap',
   },
   roleSelect: {
-    padding: '4px 8px', border: '1px solid rgba(94,214,227,0.3)',
-    borderRadius: '6px', fontSize: '12px', backgroundColor: '#0C131E',
-    color: 'rgba(255,255,255,0.85)', cursor: 'pointer', outline: 'none',
+    padding: '4px 8px', border: '1px solid var(--border)',
+    borderRadius: '6px', fontSize: '12px', backgroundColor: 'var(--bg-input)',
+    color: 'var(--text-primary)', cursor: 'pointer', outline: 'none',
   },
   deleteBtn: {
     padding: '4px 12px', backgroundColor: 'rgba(198,40,40,0.15)',
@@ -419,8 +419,8 @@ const styles = {
     borderRadius: '6px', cursor: 'pointer', fontSize: '12px',
   },
   empty: {
-    backgroundColor: '#18212D', padding: '32px', borderRadius: '15px',
-    textAlign: 'center', color: 'rgba(255,255,255,0.4)',
+    backgroundColor: 'var(--bg-card)', padding: '32px', borderRadius: '15px',
+    textAlign: 'center', color: 'var(--text-muted)',
     border: '1px solid rgba(94,214,227,0.15)', fontSize: '14px',
   },
   errorBanner: {

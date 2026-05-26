@@ -4,10 +4,15 @@ import Navbar from '../../components/Navbar'
 import applicationsAPI from '../../api/applications'
 import documentsAPI from '../../api/documents'
 import useAuthStore from '../../store/authStore'
+import useThemeStore from '../../store/themeStore'
 import iconFile from '../../assets/file.png'
 import iconDocs from '../../assets/docs.png'
 import iconBot from '../../assets/bot.png'
 import iconLock from '../../assets/lock.png'
+import iconFileLight from '../../assets/file_light.png'
+import iconDocsLight from '../../assets/docs_light.png'
+import iconBotLight from '../../assets/bot_light.png'
+import iconLockLight from '../../assets/lock_light.png'
 import turtleLogo from '../../assets/turtleLogo.png'
 
 const statusColors = {
@@ -28,6 +33,7 @@ const statusLabels = {
 
 function Dashboard() {
   const { fullName } = useAuthStore()
+  const { theme } = useThemeStore()
   const [applications, setApplications] = useState([])
   const [documents, setDocuments] = useState([])
   const [loading, setLoading] = useState(true)
@@ -84,8 +90,6 @@ function Dashboard() {
   }
 
   const nextStep = getNextStep()
-
-  // Берём только имя (второе слово из ФИО — имя)
   const firstName = fullName ? fullName.split(' ')[1] || fullName : null
 
   return (
@@ -93,7 +97,6 @@ function Dashboard() {
       <Navbar />
       <div style={styles.content}>
 
-        {/* Приветствие */}
         <div style={styles.user}>
           <h1 style={styles.userTitle}>
             {firstName ? `Добро пожаловать, ${firstName}!` : 'Добро пожаловать!'}
@@ -103,10 +106,9 @@ function Dashboard() {
         {error && <div style={styles.errorBanner}>{error}</div>}
 
         {loading ? (
-          <p style={{ color: '#5ED6E3' }}>Загрузка...</p>
+          <p style={{ color: 'var(--accent)' }}>Загрузка...</p>
         ) : (
           <>
-            {/* Счётчики */}
             <div style={styles.statsRow}>
               <div style={styles.statCard}>
                 <div style={styles.statNum}>{applications.length}</div>
@@ -130,7 +132,6 @@ function Dashboard() {
               )}
             </div>
 
-            {/* Что дальше */}
             {nextStep && (
               <div style={styles.nextStepCard}>
                 <div style={{ flex: 1 }}>
@@ -147,7 +148,6 @@ function Dashboard() {
               </div>
             )}
 
-            {/* Черновик — показываем с кнопкой подать */}
             {lastApp && lastApp.status === 'draft' && (
               <div style={styles.section}>
                 <h2 style={styles.sectionTitle}>Неподанное заявление</h2>
@@ -170,18 +170,17 @@ function Dashboard() {
               </div>
             )}
 
-            {/* О проекте */}
             <div style={styles.aboutCard}>
               <h2 style={styles.aboutTitle}>О проекте «Робочерепаха»</h2>
               <p style={styles.aboutText}>
-                Робочерепаха - интеллектуальная система Московского политехнического университета, созданная для сопровождения абитуриентов в ходе приёмной кампании. Мобильный робот на базе бионической черепахи курсирует по кампусу, а данный портал - его цифровой интерфейс: здесь можно подать заявление, загрузить документы и получить консультацию от ИИ-ассистента. Все данные надёжно защищены и передаются по зашифрованным каналам.
+                Робочерепаха — интеллектуальная система Московского политехнического университета, созданная для сопровождения абитуриентов в ходе приёмной кампании. Мобильный робот на базе бионической черепахи курсирует по кампусу, а данный портал — его цифровой интерфейс: здесь можно подать заявление, загрузить документы и получить консультацию от ИИ-ассистента. Все данные надёжно защищены и передаются по зашифрованным каналам.
               </p>
               <div style={styles.featureRow}>
                 {[
-                  { icon: iconFile, text: 'Подача заявлений онлайн' },
-                  { icon: iconDocs, text: 'Загрузка документов' },
-                  { icon: iconBot, text: 'ИИ-консультант' },
-                  { icon: iconLock, text: 'Защита данных' },
+                  { icon: theme === 'dark' ? iconFile : iconFileLight, text: 'Подача заявлений онлайн' },
+                  { icon: theme === 'dark' ? iconDocs : iconDocsLight, text: 'Загрузка документов' },
+                  { icon: theme === 'dark' ? iconBot : iconBotLight, text: 'ИИ-консультант' },
+                  { icon: theme === 'dark' ? iconLock : iconLockLight, text: 'Защита данных' },
                 ].map((f) => (
                   <div key={f.text} style={styles.featureItem}>
                     <img src={f.icon} alt="" style={{ height: '20px', objectFit: 'contain' }} />
@@ -215,13 +214,8 @@ const styles = {
   },
   userTitle: {
     fontSize: '28px',
-    color: '#5ED6E3',
+    color: 'var(--accent)',
     margin: '0 0 10px',
-  },
-  userSub: {
-    fontSize: '16px',
-    color: 'rgba(255,255,255,0.6)',
-    margin: 0,
   },
   statsRow: {
     display: 'flex',
@@ -230,44 +224,43 @@ const styles = {
     marginBottom: '20px',
   },
   statCard: {
-    backgroundColor: '#18212D',
+    backgroundColor: 'var(--bg-card)',
     borderRadius: '15px',
     padding: '20px',
     flex: '1 1 140px',
-    border: '1px solid rgba(94,214,227,0.3)',
+    border: '1px solid var(--border)',
   },
   statNum: {
     fontSize: '32px',
     fontWeight: '700',
-    color: '#5ED6E3',
+    color: 'var(--accent)',
     lineHeight: 1,
     marginBottom: '10px',
   },
   statLabel: {
     fontSize: '16px',
-    color: 'rgba(255,255,255,0.85)',
+    color: 'var(--text-primary)',
   },
   nextStepCard: {
-    backgroundColor: '#18212D',
+    backgroundColor: 'var(--bg-card)',
     borderRadius: '15px',
-    padding: '20px ',
+    padding: '20px',
     marginBottom: '40px',
     display: 'flex',
     alignItems: 'center',
     gap: '15px',
-    border: '1px solid rgba(94,214,227,0.3)',
+    border: '1px solid var(--border)',
     fontSize: '16px',
   },
   nextStepDot: {
     width: '10px',
     height: '10px',
     borderRadius: '50%',
-    backgroundColor: '#5ED6E3',
-    margin: '0',
+    backgroundColor: 'var(--accent)',
     flexShrink: 0,
   },
   nextStepText: {
-    color: 'rgba(255,255,255,0.85)',
+    color: 'var(--text-primary)',
     fontSize: '16px',
     margin: '0',
   },
@@ -275,28 +268,27 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(94,214,227,0.8)',
+    backgroundColor: 'var(--accent-btn)',
     color: '#fff',
     padding: '7px 15px',
     borderRadius: '10px',
     fontSize: '14px',
     textDecoration: 'none',
-    margin: '0',
   },
   section: {
     marginBottom: '40px',
   },
   sectionTitle: {
     fontSize: '16px',
-    color: 'rgba(255,255,255,0.7)',
+    color: 'var(--text-secondary)',
     marginBottom: '10px',
     fontWeight: '400',
   },
   card: {
-    backgroundColor: '#18212D',
+    backgroundColor: 'var(--bg-card)',
     padding: '20px',
     borderRadius: '15px',
-    border: '1px solid rgba(94,214,227,0.3)'
+    border: '1px solid var(--border)',
   },
   cardRow: {
     display: 'flex',
@@ -308,12 +300,12 @@ const styles = {
   },
   cardTitle: {
     fontSize: '16px',
-    color: '#fff',
+    color: 'var(--text-primary)',
     fontWeight: '500',
   },
   cardSub: {
     fontSize: '14px',
-    color: 'rgba(255,255,255,0.5)',
+    color: 'var(--text-muted)',
   },
   badge: {
     color: 'white',
@@ -324,7 +316,7 @@ const styles = {
   },
   submitBtn: {
     marginTop: '5px',
-    backgroundColor: 'rgba(94,214,227,0.8)',
+    backgroundColor: 'var(--accent-btn)',
     color: 'white',
     border: 'none',
     padding: '7px 15px',
@@ -342,19 +334,19 @@ const styles = {
     fontSize: '14px',
   },
   aboutCard: {
-    backgroundColor: '#18212D',
+    backgroundColor: 'var(--bg-card)',
     borderRadius: '15px',
     padding: '20px',
-    border: '1px solid rgba(94,214,227,0.3)',
+    border: '1px solid var(--border)',
   },
   aboutTitle: {
-    color: '#5ED6E3',
+    color: 'var(--accent)',
     fontSize: '20px',
     margin: '0 0 10px',
     fontWeight: '500',
   },
   aboutText: {
-    color: 'rgba(255,255,255,0.85)',
+    color: 'var(--text-primary)',
     fontSize: '16px',
     lineHeight: '1.7',
     margin: '0 0 20px',
@@ -368,13 +360,13 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    backgroundColor: 'rgba(94,214,227,0.08)',
+    backgroundColor: 'var(--accent-soft)',
     padding: '10px 16px',
     borderRadius: '10px',
     flex: '1 1 160px',
   },
   featureText: {
-    color: 'rgba(255,255,255,0.8)',
+    color: 'var(--text-secondary)',
     fontSize: '14px',
   },
   aiBtn: {
@@ -384,23 +376,20 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    
     borderRadius: '50px',
     padding: '10px 20px 10px 10px',
-    
     textDecoration: 'none',
     zIndex: 99,
   },
   aiText: {
-    color: 'rgba(255,255,255,0.85)',
-    backgroundColor:'red',
+    color: 'var(--text-primary)',
     fontSize: '14px',
     whiteSpace: 'nowrap',
-    backgroundColor:'rgba(94,214,227,0.08)',
-    border: '1px solid rgba(94,214,227,0.4)',
-    boxShadow: '0 0 2px rgba(94,214,227,0.25)',
-    borderRadius:'10px',
-    padding:'10px 20px',
+    backgroundColor: 'var(--accent-soft)',
+    border: '1px solid var(--accent-border)',
+    boxShadow: '0 0 2px var(--accent-border)',
+    borderRadius: '10px',
+    padding: '10px 20px',
   },
 }
 

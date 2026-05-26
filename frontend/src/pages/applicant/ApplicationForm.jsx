@@ -252,7 +252,7 @@ function ApplicationForm() {
             </h2>
 
             {historyLoading ? (
-              <p style={{ color: '#5ED6E3' }}>Загрузка...</p>
+              <p style={{ color: 'var --accent' }}>Загрузка...</p>
             ) : applications.length === 0 ? (
               <div style={styles.empty}>У вас пока нет заявлений</div>
             ) : (
@@ -367,7 +367,7 @@ function ApplicationForm() {
                                   <div key={s} style={styles.trackItem}>
                                     <div style={{
                                       ...styles.trackDot,
-                                      backgroundColor: isPast ? statusColors[s] : 'rgba(255,255,255,0.15)',
+                                      backgroundColor: isPast ? statusColors[s] : 'var(--row-divider)',
                                       border: isCurrent ? `2px solid ${statusColors[s]}` : '2px solid transparent',
                                       boxShadow: isCurrent ? `0 0 8px ${statusColors[s]}` : 'none',
                                     }} />
@@ -376,12 +376,12 @@ function ApplicationForm() {
                                         ...styles.trackLine,
                                         backgroundColor: idx < currentIdx
                                           ? statusColors[statusTrack[idx]]
-                                          : 'rgba(255,255,255,0.1)',
+                                          : 'var( --row-divider)',
                                       }} />
                                     )}
                                     <span style={{
                                       ...styles.trackLabel,
-                                      color: isPast ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.3)',
+                                      color: isPast ? 'var(--text-primary)' : 'var(--text-muted)',
                                     }}>
                                       {statusLabels[s]}
                                     </span>
@@ -463,18 +463,18 @@ function ApplicationForm() {
 const styles = {
   page: { minHeight: '100vh' },
   content: { maxWidth: '1240px', margin: '40px auto', padding: '0 16px' },
-  pageTitle: { fontSize: '28px', color: '#5ED6E3', margin: '0 0 24px' },
+  pageTitle: { fontSize: '28px', color: 'var(--accent)', margin: '0 0 24px' },
   grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', alignItems: 'start' },
-  sectionTitle: { fontSize: '16px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '400' },
-  card: { backgroundColor: '#18212D', borderRadius: '15px', padding: '24px', border: '1px solid rgba(94,214,227,0.3)' },
+  sectionTitle: { fontSize: '16px', color: '--text-secondary', marginBottom: '12px', fontWeight: '400' },
+  card: { backgroundColor: 'var(--bg-card)', borderRadius: '15px', padding: '24px', border: '1px solid rgba(94,214,227,0.3)' },
   field: { marginBottom: '16px' },
-  label: { display: 'block', marginBottom: '6px', color: 'rgba(255,255,255,0.85)', fontSize: '14px' },
-  count: { color: '#5ED6E3', fontSize: '13px' },
+  label: { display: 'block', marginBottom: '6px', color: 'var(--text-secondary)', fontSize: '14px' },
+  count: { color: 'var(--accent)', fontSize: '13px' },
   hint: { color: '#f57f17', fontSize: '13px', marginTop: '6px' },
   select: {
     width: '100%', padding: '10px 12px', border: '1px solid rgba(94,214,227,0.3)',
     borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box',
-    backgroundColor: '#0C131E', color: 'rgba(255,255,255,0.85)', outline: 'none', cursor: 'pointer',
+    backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer',
   },
   input: {
     width: '100%', padding: '10px 12px', border: '1px solid rgba(94,214,227,0.3)',
@@ -485,7 +485,7 @@ const styles = {
   radioLabel: { display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' },
   radioText: { color: 'rgba(255,255,255,0.85)', fontSize: '14px' },
   submitBtn: {
-    width: '100%', padding: '10px', backgroundColor: 'rgba(94,214,227,0.8)',
+    width: '100%', padding: '10px', backgroundColor: 'var(--accent-btn)',
     color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', cursor: 'pointer', marginTop: '8px',
   },
   successBanner: {
@@ -502,19 +502,19 @@ const styles = {
     border: '1px solid rgba(94,214,227,0.15)', fontSize: '14px',
   },
   appCard: {
-    backgroundColor: '#18212D', borderRadius: '12px',
+    backgroundColor: 'var(--bg-card)', borderRadius: '12px',
     marginBottom: '12px', border: '1px solid rgba(94,214,227,0.3)', overflow: 'hidden',
   },
   appHeader: { display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 20px', cursor: 'pointer' },
-  appDirection: { fontSize: '14px', color: '#fff', fontWeight: '500', marginBottom: '2px' },
-  appMeta: { fontSize: '12px', color: 'rgba(255,255,255,0.4)' },
+  appDirection: { fontSize: '14px', color: 'var(--text-primary)', fontWeight: '500', marginBottom: '2px' },
+  appMeta: { fontSize: '12px', color: 'var(--text-muted)' },
   badge: { color: 'white', padding: '4px 10px', borderRadius: '8px', fontSize: '12px' },
-  chevron: { color: 'rgba(255,255,255,0.4)', fontSize: '10px' },
-  appDetails: { padding: '0 20px 20px', borderTop: '1px solid rgba(255,255,255,0.06)' },
+  chevron: { color: 'var(--text-muted)', fontSize: '10px' },
+  appDetails: { padding: '0 20px 20px', borderTop: '1px solid var(--row-divider)' },
   detailsGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px', marginBottom: '20px' },
   detailItem: { display: 'flex', flexDirection: 'column', gap: '2px' },
-  detailLabel: { fontSize: '11px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' },
-  detailValue: { fontSize: '13px', color: 'rgba(255,255,255,0.85)' },
+  detailLabel: { fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' },
+  detailValue: { fontSize: '13px', color: 'var(--text-primary)' },
   trackWrapper: { display: 'flex', alignItems: 'flex-start', marginBottom: '20px', overflow: 'hidden' },
   trackItem: { display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', flex: 1 },
   trackDot: { width: '12px', height: '12px', borderRadius: '50%', flexShrink: 0, zIndex: 1 },
@@ -522,12 +522,12 @@ const styles = {
   trackLabel: { fontSize: '11px', marginTop: '6px', textAlign: 'center', lineHeight: '1.3' },
   actionRow: { display: 'flex', gap: '10px', flexWrap: 'wrap' },
   submitAppBtn: {
-    backgroundColor: 'rgba(94,214,227,0.8)', color: 'white',
+    backgroundColor: 'var(--accent-btn)', color: 'white',
     border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', cursor: 'pointer',
   },
   editBtn: {
-    backgroundColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.85)',
-    border: '1px solid rgba(255,255,255,0.2)', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', cursor: 'pointer',
+    backgroundColor: 'var(--accent-soft)', color: 'var(--text-primary)',
+    border: '1px solid var( --border-input)', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', cursor: 'pointer',
   },
   deleteBtn: {
     backgroundColor: 'rgba(198,40,40,0.15)', color: '#c62828',
@@ -551,14 +551,26 @@ const styles = {
     maxWidth: '480px', width: '90%',
   },
   aiBtn: {
-    position: 'fixed', bottom: '35px', right: '35px',
-    display: 'flex', alignItems: 'center', gap: '10px',
-    borderRadius: '50px', padding: '10px 20px 10px 10px', textDecoration: 'none', zIndex: 99,
+    position: 'fixed',
+    bottom: '35px',
+    right: '35px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    borderRadius: '50px',
+    padding: '10px 20px 10px 10px',
+    textDecoration: 'none',
+    zIndex: 99,
   },
   aiText: {
-    color: 'rgba(255,255,255,0.85)', fontSize: '14px', whiteSpace: 'nowrap',
-    backgroundColor: 'rgba(94,214,227,0.08)', border: '1px solid rgba(94,214,227,0.4)',
-    boxShadow: '0 0 2px rgba(94,214,227,0.25)', borderRadius: '10px', padding: '10px 20px',
+    color: 'var(--text-primary)',
+    fontSize: '14px',
+    whiteSpace: 'nowrap',
+    backgroundColor: 'var(--accent-soft)',
+    border: '1px solid var(--accent-border)',
+    boxShadow: '0 0 2px var(--accent-border)',
+    borderRadius: '10px',
+    padding: '10px 20px',
   },
 }
 

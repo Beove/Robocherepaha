@@ -215,14 +215,14 @@ function DocumentsPage() {
                       <div key={t} style={styles.requireItem}>
                         <span style={{
                           ...styles.requireNum,
-                          backgroundColor: uploaded ? 'rgba(46,125,50,0.3)' : 'rgba(94,214,227,0.15)',
-                          color: uploaded ? '#4caf50' : '#5ED6E3',
+                          backgroundColor: uploaded ? 'rgba(46,125,50,0.3)' : 'var(--accent-btn-back)',
+                          color: uploaded ? '#4caf50' : 'var(--accent)',
                         }}>
                           {uploaded ? '✓' : i + 1}
                         </span>
                         <span style={{
                           ...styles.requireText,
-                          color: uploaded ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.85)',
+                          color: uploaded ? 'var(--text-muted)' : 'var(--text-primary)',
                         }}>
                           {t}
                         </span>
@@ -237,14 +237,14 @@ function DocumentsPage() {
                       <div key={t} style={styles.requireItem}>
                         <span style={{
                           ...styles.requireNum,
-                          backgroundColor: uploaded ? 'rgba(46,125,50,0.3)' : 'rgba(255,255,255,0.05)',
-                          color: uploaded ? '#4caf50' : 'rgba(255,255,255,0.25)',
+                          backgroundColor: uploaded ? 'rgba(46,125,50,0.3)' : 'var(--row-divider)',
+                          color: uploaded ? '#4caf50' : 'var(--border)',
                         }}>
                           {uploaded ? '✓' : '—'}
                         </span>
                         <span style={{
                           ...styles.requireText,
-                          color: 'rgba(255,255,255,0.4)',
+                          color: 'var(--text-muted)',
                         }}>
                           {t}
                         </span>
@@ -333,27 +333,27 @@ function DocumentsPage() {
 const styles = {
   page: { minHeight: '100vh' },
   content: { maxWidth: '1240px', margin: '40px auto', padding: '0 16px' },
-  pageTitle: { fontSize: '28px', color: '#5ED6E3', margin: '0 0 24px' },
+  pageTitle: { fontSize: '28px', color: 'var(--accent)', margin: '0 0 24px' },
   grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', alignItems: 'start' },
-  sectionTitle: { fontSize: '16px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px', fontWeight: '400' },
-  card: { backgroundColor: '#18212D', borderRadius: '15px', padding: '24px', border: '1px solid rgba(94,214,227,0.3)' },
-  hint: { fontSize: '13px', color: 'rgba(255,255,255,0.4)', marginBottom: '16px' },
+  sectionTitle: { fontSize: '16px', color: 'var(--text-primary)', marginBottom: '12px', fontWeight: '400' },
+  card: { backgroundColor: 'var(--bg-card)', borderRadius: '15px', padding: '24px', border: '1px solid var(--border)' },
+  hint: { fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' },
   field: { marginBottom: '16px' },
-  label: { display: 'block', marginBottom: '6px', color: 'rgba(255,255,255,0.85)', fontSize: '14px' },
-  count: { color: '#5ED6E3', fontSize: '13px' },
+  label: { display: 'block', marginBottom: '6px', color: 'var(--text-primary)', fontSize: '14px' },
+  count: { color: 'var(--accent)', fontSize: '13px' },
   select: {
-    width: '100%', padding: '10px 12px', border: '1px solid rgba(94,214,227,0.3)',
+    width: '100%', padding: '10px 12px', border: '1px solid var(--accent-border)',
     borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box',
-    backgroundColor: '#0C131E', color: 'rgba(255,255,255,0.85)', outline: 'none', cursor: 'pointer',
+    backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer',
   },
   uploadBtn: {
-    display: 'inline-block', backgroundColor: 'rgba(94,214,227,0.8)',
+    display: 'inline-block', backgroundColor: 'var(--accent-btn)',
     color: 'white', padding: '10px 20px', borderRadius: '10px',
     cursor: 'pointer', fontSize: '14px', marginBottom: '20px',
   },
   requireList: { borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' },
   requireTitle: {
-    fontSize: '11px', color: 'rgba(255,255,255,0.4)',
+    fontSize: '11px', color: 'var(--text-muted)',
     marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.08em',
   },
   requireItem: { display: 'flex', gap: '10px', marginBottom: '8px', alignItems: 'flex-start' },
@@ -363,23 +363,23 @@ const styles = {
   },
   requireText: { fontSize: '13px', lineHeight: '1.4' },
   empty: {
-    backgroundColor: '#18212D', padding: '24px', borderRadius: '12px',
-    textAlign: 'center', color: 'rgba(255,255,255,0.4)',
-    border: '1px solid rgba(94,214,227,0.15)', fontSize: '14px',
+    backgroundColor: 'var(--bg-card)', padding: '24px', borderRadius: '12px',
+    textAlign: 'center', color: 'var(--text-muted)',
+    border: '1px solid var(--border)', fontSize: '14px',
   },
   docCard: {
-    backgroundColor: '#18212D', padding: '16px 20px',
-    borderRadius: '12px', marginBottom: '12px', border: '1px solid rgba(94,214,227,0.3)',
+    backgroundColor: 'var(--bg-card)', padding: '16px 20px',
+    borderRadius: '12px', marginBottom: '12px', border: '1px solid var(--border)',
   },
   docRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', marginBottom: '10px' },
-  docName: { fontSize: '14px', color: '#fff', fontWeight: '500', marginBottom: '4px' },
-  docMeta: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'rgba(255,255,255,0.4)', flexWrap: 'wrap' },
-  eduTag: { backgroundColor: 'rgba(94,214,227,0.1)', color: '#5ED6E3', padding: '2px 8px', borderRadius: '6px', fontSize: '11px' },
+  docName: { fontSize: '14px', color: 'var(--text-ptimary)', fontWeight: '500', marginBottom: '4px' },
+  docMeta: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-muted)', flexWrap: 'wrap' },
+  eduTag: { backgroundColor: 'var(--accent-btn-back)', color: 'var(--accent)', padding: '2px 8px', borderRadius: '6px', fontSize: '11px' },
   badge: { color: 'white', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', flexShrink: 0 },
   docActions: { display: 'flex', gap: '8px' },
   downloadBtn: {
-    backgroundColor: 'transparent', border: '1px solid rgba(94,214,227,0.4)',
-    color: '#5ED6E3', padding: '5px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px',
+    backgroundColor: 'transparent', border: '1px solid var(--border)',
+    color: 'var(--accent)', padding: '5px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px',
   },
   deleteBtn: {
     backgroundColor: 'rgba(198,40,40,0.1)', border: '1px solid rgba(198,40,40,0.3)',
@@ -398,29 +398,41 @@ const styles = {
     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200,
   },
   popup: {
-    backgroundColor: '#18212D', borderRadius: '20px', padding: '32px',
-    maxWidth: '400px', width: '90%', border: '1px solid rgba(94,214,227,0.3)',
+    backgroundColor: 'var(--bg-card)', borderRadius: '20px', padding: '32px',
+    maxWidth: '400px', width: '90%', border: '1px solid var(--border)',
   },
-  popupTitle: { color: '#fff', fontSize: '18px', margin: '0 0 12px' },
-  popupText: { color: 'rgba(255,255,255,0.65)', fontSize: '14px', lineHeight: '1.6', margin: '0 0 24px' },
+  popupTitle: { color: 'var(--text-primary)', fontSize: '18px', margin: '0 0 12px' },
+  popupText: { color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6', margin: '0 0 24px' },
   popupActions: { display: 'flex', gap: '12px' },
   popupDelete: {
     backgroundColor: 'rgba(198,40,40,0.8)', color: 'white',
     border: 'none', padding: '10px 24px', borderRadius: '10px', cursor: 'pointer', fontSize: '14px',
   },
   popupCancel: {
-    backgroundColor: 'transparent', color: 'rgba(255,255,255,0.6)',
-    border: '1px solid rgba(255,255,255,0.2)', padding: '10px 24px', borderRadius: '10px', cursor: 'pointer', fontSize: '14px',
+    backgroundColor: 'transparent', color: 'var(--text-secondary)',
+    border: '1px solid var(--text-secondary)', padding: '10px 24px', borderRadius: '10px', cursor: 'pointer', fontSize: '14px',
   },
   aiBtn: {
-    position: 'fixed', bottom: '35px', right: '35px',
-    display: 'flex', alignItems: 'center', gap: '10px',
-    borderRadius: '50px', padding: '10px 20px 10px 10px', textDecoration: 'none', zIndex: 99,
+    position: 'fixed',
+    bottom: '35px',
+    right: '35px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    borderRadius: '50px',
+    padding: '10px 20px 10px 10px',
+    textDecoration: 'none',
+    zIndex: 99,
   },
   aiText: {
-    color: 'rgba(255,255,255,0.85)', fontSize: '14px', whiteSpace: 'nowrap',
-    backgroundColor: 'rgba(94,214,227,0.08)', border: '1px solid rgba(94,214,227,0.4)',
-    boxShadow: '0 0 2px rgba(94,214,227,0.25)', borderRadius: '10px', padding: '10px 20px',
+    color: 'var(--text-primary)',
+    fontSize: '14px',
+    whiteSpace: 'nowrap',
+    backgroundColor: 'var(--accent-soft)',
+    border: '1px solid var(--accent-border)',
+    boxShadow: '0 0 2px var(--accent-border)',
+    borderRadius: '10px',
+    padding: '10px 20px',
   },
 }
 

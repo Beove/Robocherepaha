@@ -3,11 +3,14 @@ import { useNavigate, Link } from 'react-router-dom'
 import authAPI from '../../api/auth'
 import useAuthStore from '../../store/authStore'
 import turtleForForm from '../../assets/turtleForForm.png'
+import dark from '../../assets/dark.png'
+import light from '../../assets/light.png'
+import useThemeStore from '../../store/themeStore'
 
 function RegisterPage() {
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
-
+  const { theme, toggle } = useThemeStore()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -37,7 +40,7 @@ function RegisterPage() {
         <img src={turtleForForm} alt="Черепаха" style={styles.turtle} />
       </div>
       <div style={styles.card}>
-        <h1 style={styles.title}>Робочерепаха</h1>
+        <h1 style={styles.title}>Робочерепаха <button onClick={toggle} style={styles.themeBtn}><img src={theme === 'dark' ? light : dark} alt="theme" style={styles.themeIcon} /></button></h1>
         <h2 style={styles.subtitle}>Регистрация</h2>
 
         {error && <div style={styles.error}>{error}</div>}
@@ -103,13 +106,13 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0C131E',
+    backgroundColor: 'var(--bg-page)',
   },
   card: {
-    backgroundColor: '#18212D',
+    backgroundColor: 'var(--bg-card)',
     padding: '40px',
     borderRadius: '35px',
-    boxShadow: '0 2px 10px rgba(94,214,227,0.5)',
+    boxShadow: '0 2px 10px var(--accent-border)',
     width: '100%',
     maxWidth: '400px',
     zIndex: 1,
@@ -124,18 +127,35 @@ const styles = {
     width: '100%',
     maxWidth: '280px',
     objectFit: 'contain',
-    filter: 'drop-shadow(0 2px 5px rgba(94,214,227,0.5))',
+    filter: 'drop-shadow(0 2px 5px var(--accent-border))',
   },
   title: {
     textAlign: 'center',
-    color: '#5ED6E3',
+    color: 'var(--accent)',
     marginBottom: '5px',
     fontSize: '24px',
-    WebkitTextStroke: '0 2px 10px rgba(255, 255, 255, 0.8)',
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'center',
+    gap:'10px',
+  },
+  themeBtn: {
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '0',
+    margin: '0',
+    width: '24px',
+    height: '24px',
+  },
+  themeIcon: {
+    width: '24px',
+    height: '24px',
+    display: 'block',
   },
   subtitle: {
     textAlign: 'center',
-    color: '#fff',
+    color: 'var(--text-primary)',
     marginBottom: '20px',
     fontSize: '16px',
     fontWeight: 'normal',
@@ -154,21 +174,24 @@ const styles = {
   label: {
     display: 'block',
     marginBottom: '5px',
-    color: '#fff',
+    color: 'var(--text-primary)',
     fontSize: '14px',
   },
   input: {
     width: '100%',
     padding: '10px',
-    border: '1px solid #313840',
+    border: '1px solid var(--border-input)',
     borderRadius: '15px',
     fontSize: '14px',
     boxSizing: 'border-box',
+    backgroundColor: 'var(--bg-input)',
+    color: 'var(--text-primary)',
+    outline: 'none',
   },
   button: {
     width: '100%',
     padding: '10px',
-    backgroundColor: 'rgba(94, 214, 227, 0.8)',
+    backgroundColor: 'var(--accent-btn)',
     color: 'white',
     border: 'none',
     borderRadius: '15px',
@@ -180,7 +203,7 @@ const styles = {
     textAlign: 'center',
     marginTop: '10px',
     fontSize: '14px',
-    color: '#fff',
+    color: 'var(--text-primary)',
   },
 }
 

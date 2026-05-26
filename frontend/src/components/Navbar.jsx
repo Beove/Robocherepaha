@@ -1,9 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore'
 import logo from '../assets/turtleLogo.png'
+import dark from '../assets/dark.png'
+import light from '../assets/light.png'
+import useThemeStore from '../store/themeStore'
 
 function Navbar() {
   const { role, logout } = useAuthStore()
+  const { theme, toggle } = useThemeStore()
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -30,12 +34,10 @@ function Navbar() {
           {role === 'operator' && (
             <Link style={styles.link} to="/operator">Заявления</Link>
           )}
-          {role === 'admin' && (
-            <Link style={styles.link} to="/admin/logs">Журнал аудита</Link>
-          )}
           <button style={styles.logoutBtn} onClick={handleLogout}>
             Выйти
           </button>
+          <button onClick={toggle} style={styles.themeBtn}><img src={theme === 'dark' ? light : dark} alt="theme" style={styles.themeIcon} /></button>
         </div>
       </div>
     </nav>
@@ -47,13 +49,13 @@ const styles = {
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    backgroundColor: '#18212D',
+    backgroundColor: 'var(--bg-card)',
     padding: '0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     height: '80px',
-    boxShadow: '0 2px 5px rgba(94,214,227,0.5)',
+    boxShadow: '0 1px 5px var(--accent-btn)',
     borderRadius: '0 0 35px 35px'
   },
   content: {
@@ -62,11 +64,11 @@ const styles = {
     alignItems: 'center',
   },
   brand: {
-    color: '#5ED6E3',
+    color: 'var(--accent-btn)',
     fontSize: '16px',
     fontWeight: '500',
     display: 'flex',
-    alignItems:'center',
+    alignItems: 'center',
     gap: '10px',
   },
   links: {
@@ -75,14 +77,31 @@ const styles = {
     alignItems: 'center',
     gap: '20px',
   },
+  themeBtn: {
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '0',
+    margin: '0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '24px',
+    height: '24px',
+  },
+  themeIcon: {
+    width: '24px',
+    height: '24px',
+    display: 'block',
+  },
   link: {
-    color: 'rgba(255,255,255,0.85)',
+    color: 'var(--text-primary)',
     textDecoration: 'none',
     fontSize: '14px',
   },
   logoutBtn: {
-    backgroundColor: 'rgba(94, 214, 227, 0.8)',
-    border: '1px solid  rgba(94,214,227,0.5)',
+    backgroundColor: 'var(--accent-btn)',
+    border: 'none',
     color: '#fff',
     padding: '7px 15px',
     borderRadius: '10px',

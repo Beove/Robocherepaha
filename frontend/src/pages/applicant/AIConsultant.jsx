@@ -72,7 +72,6 @@ function AIConsultant() {
           </p>
         </div>
 
-        {/* Область сообщений */}
         <div style={styles.chatBox}>
           {messages.map((msg, idx) => (
             <div
@@ -88,7 +87,7 @@ function AIConsultant() {
               <div style={{
                 ...styles.messageText,
                 fontStyle: msg.loading ? 'italic' : 'normal',
-                color: msg.loading ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.85)',
+                color: msg.loading ? 'var(--text-muted)' : 'var(--text-primary)',
               }}>
                 {msg.text}
               </div>
@@ -97,7 +96,6 @@ function AIConsultant() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Поле ввода */}
         <div style={styles.inputRow}>
           <textarea
             style={styles.textarea}
@@ -136,21 +134,21 @@ const styles = {
   },
   title: {
     fontSize: '28px',
-    color: '#5ED6E3',
+    color: 'var(--accent)',
     margin: '0',
   },
   subtitle: {
     fontSize: '16px',
-    color: 'rgba(255,255,255,0.85)',
+    color: 'var(--text-primary)',
     margin: 0,
   },
   chatBox: {
-    backgroundColor: '#18212D',
+    backgroundColor: 'var(--bg-card)',
     borderRadius: '15px',
     padding: '20px',
     height: '500px',
     overflowY: 'auto',
-    border: '1px solid rgba(94,214,227,0.3)',
+    border: '1px solid var(--border)',
     marginBottom: '20px',
   },
   message: {
@@ -159,18 +157,18 @@ const styles = {
     borderRadius: '10px',
   },
   userMessage: {
-    backgroundColor: 'rgba(94,214,227,0.08)',
-    border: '1px solid rgba(94,214,227,0.2)',
+    backgroundColor: 'var(--accent-soft)',
+    border: '1px solid var(--accent-border)',
     marginLeft: '80px',
   },
   assistantMessage: {
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    border: '1px solid rgba(255,255,255,0.08)',
+    backgroundColor: 'var(--row-alt)',
+    border: '1px solid var(--row-divider)',
     marginRight: '80px',
   },
   messageRole: {
     fontSize: '14px',
-    color: '#5ED6E3',
+    color: 'var(--accent)',
     marginBottom: '5px',
     fontWeight: '500',
   },
@@ -187,18 +185,18 @@ const styles = {
   textarea: {
     flex: 1,
     padding: '20px',
-    border: '1px solid rgba(94,214,227,0.3)',
+    border: '1px solid var(--border)',
     borderRadius: '15px',
     fontSize: '16px',
     resize: 'none',
     fontFamily: 'inherit',
-    backgroundColor: '#18212D',
-    color: 'rgba(255,255,255,0.85)',
+    backgroundColor: 'var(--bg-card)',
+    color: 'var(--text-primary)',
     outline: 'none',
     height: '100px',
   },
   sendBtn: {
-    backgroundColor: 'rgba(94, 214, 227, 0.8)',
+    backgroundColor: 'var(--accent-btn)',
     color: '#fff',
     border: 'none',
     padding: '0 15px',
