@@ -45,6 +45,7 @@ class DocumentResponse(BaseModel):
     status: str
     doc_type: Optional[str] = None
     edu_level: Optional[str] = None
+    reject_reason: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -185,6 +186,63 @@ def get_my_documents(
     return db.query(Document).filter(
         Document.user_id == current_user.id
     ).order_by(Document.created_at.desc()).all()
+
+
+@router.get("/user/{user_id}", response_model=List[DocumentResponse])
+@limiter.limit("30/minute")
+def get_user_documents(
+    request: Request,
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role not in (UserRole.operator, UserRole.admin):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    return db.query(Document).filter(
+        Document.user_id == user_id
+    ).order_by(Document.created_at.desc()).all()
+
+
+class DocumentStatusUpdate(BaseModel):
+    status: str  # accepted / rejected
+    reject_reason: Optional[str] = None
+
+@router.patch("/{document_id}/status", response_model=DocumentResponse)
+@limiter.limit("30/minute")
+def update_document_status(
+    request: Request,
+    document_id: int,
+    body: DocumentStatusUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role not in (UserRole.operator, UserRole.admin):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    if body.status not in ("accepted", "rejected"):
+        raise HTTPException(status_code=400, detail="Invalid status")
+
+    document = db.query(Document).filter(Document.id == document_id).first()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    document.status = body.status
+    if body.reject_reason is not None:
+        document.reject_reason = body.reject_reason
+
+    log = AuditLog(
+        user_id=current_user.id,
+        event_type="DOCUMENT_STATUS_UPDATED",
+        object_type="document",
+        object_id=document_id,
+        ip_address=request.client.host,
+        details=json.dumps({"status": body.status, "reject_reason": body.reject_reason})
+    )
+    db.add(log)
+    db.commit()
+    db.refresh(document)
+    return document
 
 
 @router.get("/{document_id}/download")

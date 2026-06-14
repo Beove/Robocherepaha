@@ -20,7 +20,6 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setError('')
 
     try {
       const response = await authAPI.login(email, password)
@@ -36,9 +35,9 @@ function LoginPage() {
       } else if (role === 'operator') navigate('/operator')
       else if (role === 'admin') navigate('/admin/logs')
     } catch (err) {
-      setError(err.response?.data?.detail || 'Ошибка входа')
-    } finally {
+      console.log('catch сработал', err)
       setLoading(false)
+      setError(err.response?.data?.detail || 'Ошибка входа')
     }
   }
 
@@ -48,7 +47,7 @@ function LoginPage() {
         <img src={turtleForForm} alt="Черепаха" style={styles.turtle} />
       </div>
       <div style={styles.card}>
-        <h1 style={styles.title}>Робочерепаха <button onClick={toggle} style={styles.themeBtn}><img src={theme === 'dark' ? light : dark} alt="theme" style={styles.themeIcon} /></button></h1>
+        <h1 style={styles.title}>Робочерепаха <button type="button" onClick={toggle} style={styles.themeBtn}><img src={theme === 'dark' ? light : dark} alt="theme" style={styles.themeIcon} /></button></h1>
         <h2 style={styles.subtitle}>Вход в систему</h2>
 
         {error && <div style={styles.error}>{error}</div>}
@@ -60,7 +59,7 @@ function LoginPage() {
               style={styles.input}
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setError('') }}
               placeholder="example@mail.ru"
               required
             />
@@ -72,7 +71,7 @@ function LoginPage() {
               style={styles.input}
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => { setPassword(e.target.value); setError('') }}
               placeholder="Введите пароль"
               required
             />
@@ -129,10 +128,10 @@ const styles = {
     color: 'var(--accent)',
     marginBottom: '5px',
     fontSize: '24px',
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center',
-    gap:'10px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '10px',
   },
   themeBtn: {
     background: 'transparent',

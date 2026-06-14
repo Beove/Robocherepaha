@@ -6,6 +6,8 @@ from datetime import datetime
 from app.database import get_db
 from app.models.audit_log import AuditLog
 from app.models.user import User, UserRole
+from app.models.document import Document
+from app.models.application import Application
 from app.auth.dependencies import get_current_admin
 from app.auth.security import hash_password
 from app.middleware import limiter
@@ -172,13 +174,21 @@ def delete_user(
     current_user=Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):
-    """Удаление пользователя."""
     if user_id == current_user.id:
         raise HTTPException(status_code=400, detail="Нельзя удалить собственный аккаунт")
 
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+    db.query(Document).filter(Document.user_id == user_id).delete()
+    db.flush()
+
+    db.query(Application).filter(Application.user_id == user_id).delete()
+    db.flush()
+
+    db.query(AuditLog).filter(AuditLog.user_id == user_id).update({"user_id": None})
+    db.flush()
 
     log = AuditLog(
         user_id=current_user.id,
@@ -189,7 +199,6 @@ def delete_user(
         details=json.dumps({"email": user.email, "role": user.role})
     )
     db.add(log)
-    db.commit()
-
+    db.flush()
     db.delete(user)
     db.commit()

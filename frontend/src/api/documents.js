@@ -15,11 +15,18 @@ const documentsAPI = {
   // Получение документов текущего пользователя
   getMy: () => client.get('/documents/me'),
 
+  // Получение документов конкретного пользователя (для операторов)
+  getByUser: (userId) => client.get(`/documents/user/${userId}`),
+
   // Получение ссылки для скачивания
   getDownloadUrl: (id) => client.get(`/documents/${id}/download`),
 
   // Удаление документа
   delete: (id) => client.delete(`/documents/${id}`),
+
+  // Обновление статуса документа (для операторов)
+  updateStatus: (id, status, rejectReason = null) =>
+    client.patch(`/documents/${id}/status`, { status, reject_reason: rejectReason }),
 }
 
 export default documentsAPI
